@@ -35,3 +35,7 @@ define('JV_PRIMITIVE_TYPE_STRING', 'string');
 define('JV_CONTAINER_TYPE_ARRAY', JV_PRIMITIVE_TYPE_ARRAY);
 define('JV_CONTAINER_TYPE_OBJECT', JV_PRIMITIVE_TYPE_OBJECT);
 //@}
+//
+// Other constants @{
+define('JV_TYPES_SEPARATOR', ',');
+//@}

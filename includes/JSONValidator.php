@@ -146,7 +146,7 @@ class JSONValidator {
 		if(preg_match(self::$_TypesDefRequired, $typeString, $match)) {
 			$out[JV_FIELD_REQUIRED] = $match[JV_FIELD_REQUIRED] == '+';
 			$out[JV_FIELD_TYPES_STRING] = $match[JV_FIELD_TYPES];
-			$out[JV_FIELD_TYPES] = explode(',', $match[JV_FIELD_TYPES]);
+			$out[JV_FIELD_TYPES] = explode(JV_TYPES_SEPARATOR, $match[JV_FIELD_TYPES]);
 
 			foreach($out[JV_FIELD_TYPES] as $key => $strSpec) {
 				if(preg_match(self::$_TypesDefType, $strSpec, $match)) {
@@ -263,8 +263,9 @@ class JSONValidator {
 				// Checking if no type matched.
 				if(!$matches) {
 					$ok = false;
+					$typesStr = "'".implode("', '", explode(JV_TYPES_SEPARATOR, $conf[JV_FIELD_TYPES_STRING]))."'";
 					$info[JV_FIELD_ERRORS][] = [
-						JV_FIELD_MESSAGE => "Field at '{$path}{$name}' has a wrong type (allowed types '{$conf[JV_FIELD_TYPES_STRING]}').",
+						JV_FIELD_MESSAGE => "Field at '{$path}{$name}' has a wrong type (allowed types: {$typesStr}).",
 						JV_FIELD_FIELD_CONF => $conf,
 						JV_FIELD_FIELD => $json
 					];
