@@ -27,10 +27,11 @@ class JSONValidator {
 		'boolean',
 		'float',
 		'int',
+		'mixed',
 		'object',
 		'string'
 	];
-	protected static $_TypeDefPatter = '/^(?P<required>[+-]?)(?P<type>([a-z]+))((\\[(?P<subtype>.*)\\])?)$/';
+	protected static $_TypeDefPatter = '/^(?P<required>[+-]?)(?P<type>([a-zA-Z0-9]+))((\\[(?P<subtype>.*)\\])?)$/';
 	//
 	// Protected properties.
 	/**
@@ -155,12 +156,12 @@ class JSONValidator {
 		foreach($this->_specs->types as $type => $conf) {
 			$aux = [];
 
-			if(!isset($conf->fields) || !count(get_object_vars($conf->fields))) {
+			if(!is_object($conf) || !count(get_object_vars($conf))) {
 				throw new JSONValidatorException(__CLASS__.": Type '{$type}' has a wrong fields specification.");
 			}
 
 			$aux['fields'] = [];
-			foreach($conf->fields as $field => $fieldConf) {
+			foreach($conf as $field => $fieldConf) {
 				$aux['fields'][$field] = $this->expandType($fieldConf);
 			}
 
@@ -188,6 +189,7 @@ class JSONValidator {
 				} else {
 					$type = $conf['container'] ? $conf['subtype'] : $conf['type'];
 					$subPath = '';
+					$lastField = false;
 					if($conf['container']) {
 						foreach($json->{$name} as $pos => $subJson) {
 							$subPath = "{$path}{$name}[{$pos}]/";
@@ -196,17 +198,25 @@ class JSONValidator {
 							} else {
 								$ok = $this->validateJSON($subJson, $this->_types[$type]['fields'], $subPath, $info);
 							}
+							$lastField = $subJson;
+
 							if(!$ok) {
 								break;
 							}
 						}
 					} else {
 						$subPath = "{$path}{$name}/";
-						$ok = $this->validateJSON($json->{$name}, $conf['fields'], $subPath, $info);
+						if(in_array($type, self::$_PrimitiveTypes)) {
+							$ok = $this->validatePrimitive($json->{$name}, $type);
+						} else {
+							$ok = $this->validateJSON($json->{$name}, $this->_types[$type]['fields'], $subPath, $info);
+						}
+						$lastField = $json->{$name};
 					}
 					if(!$ok) {
 						$info['error'] = "Field at '{$subPath}' is not of type '{$type}'.";
 						$info['field-conf'] = $conf;
+						$info['field'] = $lastField;
 						break;
 					}
 				}
@@ -215,6 +225,7 @@ class JSONValidator {
 					$ok = false;
 					$info['error'] = "Required field at '{$path}{$name}' is not present.";
 					$info['field-conf'] = $conf;
+					$info['field'] = $json;
 					break;
 				}
 			}
@@ -237,6 +248,9 @@ class JSONValidator {
 				break;
 			case 'int':
 				$ok = is_int($field);
+				break;
+			case 'mixed':
+				$ok = true;
 				break;
 			case 'object':
 				$ok = is_object($field);
