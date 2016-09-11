@@ -4,6 +4,8 @@
  * @file json-validator.php
  * @author Alejandro Dario Simi
  */
+require_once __DIR__.'/includes/define.php';
+
 spl_autoload_register(function($class) {
 	static $knownClasses = [
 		'JSONValidator' => '/includes/JSONValidator.php',
