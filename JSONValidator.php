@@ -14,14 +14,23 @@ class JSONValidatorException extends Exception {
 
 /**
  * @class JSONValidator
+ * This class holds all the logic to validate a JSON string based on a
+ * specification.
  */
 class JSONValidator {
 	//
 	// Protected class properties.
+	/**
+	 * @var string[] List of types that may contain sub-types.
+	 */
 	protected static $_ContainerTypes = [
 		'array',
 		'object'
 	];
+	/**
+	 * @var string[] List of all types known as primitive, these don't
+	 * require complex checks.
+	 */
 	protected static $_PrimitiveTypes = [
 		'array',
 		'boolean',
@@ -31,7 +40,14 @@ class JSONValidator {
 		'object',
 		'string'
 	];
-	protected static $_TypeDefPatter = '/^(?P<required>[+-]?)(?P<type>([a-zA-Z0-9]+))((\\[(?P<subtype>.*)\\])?)$/';
+	/**
+	 * @var string @todo doc
+	 */
+	protected static $_TypesDefRequired = '/^(?P<required>[+-]?)(?P<types>[a-zA-Z0-9\\[\\],]+)$/';
+	/**
+	 * @var string @todo doc
+	 */
+	protected static $_TypesDefType = '/^(?P<type>[^\\[]+)((\\[(?P<subtype>.*)\\])?)$/';
 	//
 	// Protected properties.
 	/**
@@ -74,14 +90,21 @@ class JSONValidator {
 	public function validate($jsonString, &$info = false) {
 		$ok = true;
 
-		$info = [];
+		$info = [
+			'error' => false,
+			'errors' => [],
+		];
 
 		$json = json_decode($jsonString);
 		if(!$json) {
 			$ok = false;
 			$info['error'] = '[{'.json_last_error().'}] {'.json_last_error_msg().'}';
 		} else {
-			$ok = $this->validateJSON($json, $this->_rootFields, '/', $info);
+			$ok = $this->validateJSON($json, '/', $this->_rootFields, $info);
+
+			if(count($info['errors'])) {
+				$info['error'] = $info['errors'][0];
+			}
 		}
 
 		return $ok;
@@ -120,13 +143,25 @@ class JSONValidator {
 		$out = [];
 
 		$match = false;
-		if(preg_match(self::$_TypeDefPatter, $typeString, $match)) {
+		if(preg_match(self::$_TypesDefRequired, $typeString, $match)) {
 			$out['required'] = $match['required'] == '+';
-			$out['type'] = $match['type'];
-			$out['subtype'] = isset($match['subtype']) ? $match['subtype'] : false;
+			$out['types-string'] = $match['types'];
+			$out['types'] = explode(',', $match['types']);
 
-			$out['primitive'] = !$out['subtype'] && in_array($out['type'], self::$_PrimitiveTypes);
-			$out['container'] = $out['subtype'] && in_array($out['type'], self::$_ContainerTypes);
+			foreach($out['types'] as $key => $strSpec) {
+				if(preg_match(self::$_TypesDefType, $strSpec, $match)) {
+					$aux = [];
+					$aux['type'] = $match['type'];
+					$aux['subtype'] = isset($match['subtype']) ? $match['subtype'] : false;
+
+					$aux['primitive'] = !$aux['subtype'] && in_array($aux['type'], self::$_PrimitiveTypes);
+					$aux['container'] = $aux['subtype'] && in_array($aux['type'], self::$_ContainerTypes);
+
+					$out['types'][$key] = $aux;
+				} else {
+					throw new JSONValidatorException(__CLASS__.": '{$strSpec}' is a wrong type specification.");
+				}
+			}
 		} else {
 			throw new JSONValidatorException(__CLASS__.": '{$typeString}' is a wrong type specification.");
 		}
@@ -174,58 +209,75 @@ class JSONValidator {
 			$this->validateTypes($conf['fields'], "type '{$type}' fields");
 		}
 	}
-	public function validateJSON($json, $fields, $path, &$info) {
-		$ok = true;
+	protected function validateFieldType($json, $jsonPath, $fieldName, $typeConf, &$info) {
+		$matches = true;
 
-		foreach($fields as $name => $conf) {
-			if(isset($json->{$name})) {
-				if($conf['primitive']) {
-					$ok = $this->validatePrimitive($json->{$name}, $conf['type']);
-
-					if(!$ok) {
-						$info['error'] = "Field at '{$path}{$name}' is not of type '{$conf['type']}'.";
-						$info['field-conf'] = $conf;
-					}
-				} else {
-					$type = $conf['container'] ? $conf['subtype'] : $conf['type'];
-					$subPath = '';
-					$lastField = false;
-					if($conf['container']) {
-						foreach($json->{$name} as $pos => $subJson) {
-							$subPath = "{$path}{$name}[{$pos}]/";
-							if(in_array($type, self::$_PrimitiveTypes)) {
-								$ok = $this->validatePrimitive($subJson, $type);
-							} else {
-								$ok = $this->validateJSON($subJson, $this->_types[$type]['fields'], $subPath, $info);
-							}
-							$lastField = $subJson;
-
-							if(!$ok) {
-								break;
-							}
-						}
+		if($typeConf['primitive']) {
+			$matches = $this->validatePrimitive($json->{$fieldName}, $typeConf['type']);
+		} else {
+			$type = $typeConf['container'] ? $typeConf['subtype'] : $typeConf['type'];
+			$subPath = '';
+			$lastField = false;
+			if($typeConf['container']) {
+				foreach($json->{$fieldName} as $pos => $subJson) {
+					$subPath = "{$jsonPath}{$fieldName}[{$pos}]/";
+					if(in_array($type, self::$_PrimitiveTypes)) {
+						$matches = $this->validatePrimitive($subJson, $type);
 					} else {
-						$subPath = "{$path}{$name}/";
-						if(in_array($type, self::$_PrimitiveTypes)) {
-							$ok = $this->validatePrimitive($json->{$name}, $type);
-						} else {
-							$ok = $this->validateJSON($json->{$name}, $this->_types[$type]['fields'], $subPath, $info);
-						}
-						$lastField = $json->{$name};
+						$matches = $this->validateJSON($subJson, $subPath, $this->_types[$type]['fields'], $info);
 					}
-					if(!$ok) {
-						$info['error'] = "Field at '{$subPath}' is not of type '{$type}'.";
-						$info['field-conf'] = $conf;
-						$info['field'] = $lastField;
+					$lastField = $subJson;
+
+					if(!$matches) {
 						break;
 					}
 				}
 			} else {
+				$subPath = "{$jsonPath}{$fieldName}/";
+				if(in_array($type, self::$_PrimitiveTypes)) {
+					$matches = $this->validatePrimitive($json->{$fieldName}, $type);
+				} else {
+					$matches = $this->validateJSON($json->{$fieldName}, $subPath, $this->_types[$type]['fields'], $info);
+				}
+				$lastField = $json->{$fieldName};
+			}
+		}
+
+		return $matches;
+	}
+	protected function validateJSON($json, $path, $fields, &$info) {
+		$ok = true;
+
+		foreach($fields as $name => $conf) {
+			if(isset($json->{$name})) {
+				$matches = false;
+				//
+				// Checking each possible type on this field.
+				foreach($conf['types'] as $typeConf) {
+					$matches = $this->validateFieldType($json, $path, $name, $typeConf, $info);
+					if($matches) {
+						break;
+					}
+				}
+				//
+				// Checking if no type matched.
+				if(!$matches) {
+					$ok = false;
+					$info['errors'][] = [
+						'message' => "Field at '{$path}{$name}' has a wrong type (allowed types '{$conf['types-string']}').",
+						'field-conf' => $conf,
+						'field' => $json
+					];
+					break;
+				}
+			} else {
 				if($conf['required']) {
 					$ok = false;
-					$info['error'] = "Required field at '{$path}{$name}' is not present.";
-					$info['field-conf'] = $conf;
-					$info['field'] = $json;
+					$info['errors'][] = [
+						'message' => "Required field at '{$path}{$name}' is not present.",
+						'field-conf' => $conf,
+						'field' => $json
+					];
 					break;
 				}
 			}
@@ -264,14 +316,14 @@ class JSONValidator {
 	}
 	protected function validateTypes($fields, $at) {
 		foreach($fields as $name => $conf) {
-			if(!$conf['primitive']) {
-				$type = $conf['container'] ? $conf['subtype'] : $conf['type'];
-				if(!in_array($type, self::$_PrimitiveTypes) && !isset($this->_types[$type])) {
-					throw new JSONValidatorException(__CLASS__.": Field '{$name}' ({$at}) uses an undefiend type called '{$type}'.");
+			foreach($conf['types'] as $typeConf) {
+				if(!$typeConf['primitive']) {
+					$type = $typeConf['container'] ? $typeConf['subtype'] : $typeConf['type'];
+					if(!in_array($type, self::$_PrimitiveTypes) && !isset($this->_types[$type])) {
+						throw new JSONValidatorException(__CLASS__.": Field '{$name}' ({$at}) uses an undefiend type called '{$type}'.");
+					}
 				}
 			}
 		}
 	}
-	//
-	// Public class mehtods.
 }
