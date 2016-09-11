@@ -6,8 +6,8 @@
  */
 spl_autoload_register(function($class) {
 	static $knownClasses = [
-		'JSONValidator' => '/JSONValidator.php',
-		'JSONValidatorException' => '/JSONValidator.php'
+		'JSONValidator' => '/includes/JSONValidator.php',
+		'JSONValidatorException' => '/includes/JSONValidator.php'
 	];
 
 	if(isset($knownClasses[$class])) {
