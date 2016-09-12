@@ -13,7 +13,6 @@ define('JV_FIELD_FIELD', 'field');
 define('JV_FIELD_FIELDS', 'fields');
 define('JV_FIELD_FIELD_CONF', 'field-conf');
 define('JV_FIELD_MESSAGE', 'message');
-define('JV_FIELD_PRIMITIVE', 'primitive');
 define('JV_FIELD_REQUIRED', 'required');
 define('JV_FIELD_SUBTYPE', 'subtype');
 define('JV_FIELD_TYPE', 'type');
@@ -38,4 +37,5 @@ define('JV_CONTAINER_TYPE_OBJECT', JV_PRIMITIVE_TYPE_OBJECT);
 //
 // Other constants @{
 define('JV_TYPES_SEPARATOR', ',');
+define('JV_SUBTYPES_SEPARATOR', ':');
 //@}
