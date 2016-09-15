@@ -13,7 +13,10 @@ define('JV_FIELD_FIELD', 'field');
 define('JV_FIELD_FIELDS', 'fields');
 define('JV_FIELD_FIELD_CONF', 'field-conf');
 define('JV_FIELD_MESSAGE', 'message');
+define('JV_FIELD_MODS', 'mods');
+define('JV_FIELD_PRIMITIVE', 'primitive');
 define('JV_FIELD_REQUIRED', 'required');
+define('JV_FIELD_STYPE', 'spec-type');
 define('JV_FIELD_SUBTYPE', 'subtype');
 define('JV_FIELD_TYPE', 'type');
 define('JV_FIELD_TYPES', 'types');
@@ -33,6 +36,12 @@ define('JV_PRIMITIVE_TYPE_STRING', 'string');
 // Container types @{
 define('JV_CONTAINER_TYPE_ARRAY', JV_PRIMITIVE_TYPE_ARRAY);
 define('JV_CONTAINER_TYPE_OBJECT', JV_PRIMITIVE_TYPE_OBJECT);
+//@}
+//
+// Types classes @{
+define('JV_STYPE_ALIAS', 'alias');
+define('JV_STYPE_TYPES_LIST', 'list');
+define('JV_STYPE_STRUCTURE', 'structure');
 //@}
 //
 // Other constants @{
