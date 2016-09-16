@@ -166,27 +166,46 @@ class JSONValidator {
 	//
 	// Protected mehtods.
 	/**
-	 * @todo doc
+	 * This method takes a type specified as a string and transforms it into a
+	 * explained type structure.
 	 *
-	 * @param type $typeName @todo doc
-	 * @param type $typeString @todo doc
-	 * @param type $isField @todo doc
-	 * @return boolean @todo doc
+	 * @param string $typeName Name of the field or type to expand.
+	 * @param string $typeString Specification string.
+	 * @param boolean $isField When TRUE this method expands a field's type
+	 * specification, otherwise, expands a type's type specification.
+	 * @return mixed[string] Resturns a structure that reflex inportant
+	 * aspects of a type string.
 	 * @throws \JSONValidatorException
 	 */
 	protected function expandType($typeName, $typeString, $isField = true) {
+		//
+		// Defualt values.
 		$out = [];
-
 		$reqMatch = false;
+		//
+		// Checking what kind of analysis should be done, field's type or
+		// type's type.
 		if($isField) {
+			//
+			// Checking if it's a type's type specification.
 			if(!preg_match(self::$_PatternFieldType, $typeString, $reqMatch)) {
 				throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
 			}
-
+			//
+			// Loading information from the specification.
 			$out[JV_FIELD_REQUIRED] = $reqMatch['required'] == '+';
 			$out[JV_FIELD_TYPE] = $reqMatch['type'];
 		} else {
+			//
+			// Checking if it's a simple alias specification or
+			// something else.
 			if(!preg_match(self::$_PatternTypeAliases, $typeString, $reqMatch)) {
+				//
+				// 'Something else' could be a regular expression.
+				//
+				// Note: The use of '@' is bad, but it seems to be
+				// the only way to validate a regular expression,
+				// unless you want to do something also bad.
 				if(@preg_match($typeString, null) === false) {
 					throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
 				} else {
@@ -196,13 +215,19 @@ class JSONValidator {
 					$out[JV_FIELD_REGEXP] = $typeString;
 				}
 			} else {
+				//
+				// Loading information from the specification.
 				$out[JV_FIELD_TYPE] = $reqMatch['name'];
 			}
 		}
-
+		//
+		// Checking if this is related to a primitive type.
 		$out[JV_FIELD_PRIMITIVE] = in_array($out[JV_FIELD_TYPE], self::$_PrimitiveTypes);
-
+		//
+		// Loading type modifiers on aliases.
 		$out[JV_FIELD_MODS] = isset($reqMatch['mods']) ? $reqMatch['mods'] : false;
+		//
+		// Expanding the information of knwon modifiers.
 		switch($out[JV_FIELD_MODS]) {
 			case '[]':
 				$out[JV_FIELD_CONTAINER] = JV_CONTAINER_TYPE_ARRAY;
@@ -213,7 +238,8 @@ class JSONValidator {
 			default:
 				$out[JV_FIELD_CONTAINER] = false;
 		}
-
+		//
+		// Counting it as an used type.
 		$this->_usedTypes[] = $out[JV_FIELD_TYPE];
 
 		return $out;
@@ -310,13 +336,14 @@ class JSONValidator {
 		$this->validateUsedTypes();
 	}
 	/**
-	 * @todo doc
+	 * This method validates a field's value as if it were a list of other
+	 * items and forwards validations for each one.
 	 *
-	 * @param type $json @todo doc
-	 * @param type $path @todo doc
-	 * @param type $typeSpec @todo doc
-	 * @param type $errors @todo doc
-	 * @return boolean @todo doc
+	 * @param mixed $json Field value to check.
+	 * @param string $path Virtual path where this value is located.
+	 * @param mixed[string] $typeSpec Internal specification for the type to check.
+	 * @param mixed[string] $errors List of found errors (in/out parameters).
+	 * @return boolean Returns TRUE if all of its items match.
 	 * @throws \JSONValidatorException
 	 */
 	protected function validateContainer($json, $path, $typeSpec, &$errors) {
@@ -390,12 +417,12 @@ class JSONValidator {
 		return preg_match($regexp, $value);
 	}
 	/**
-	 * @todo doc
+	 * This is the main method to validate a field value against a type.
 	 *
-	 * @param type $json @todo doc
-	 * @param type $path @todo doc
-	 * @param type $typeName @todo doc
-	 * @param type $errors @todo doc
+	 * @param mixed $json Field value to check.
+	 * @param string $path Virtual path where this value is located.
+	 * @param string $typeName Type name.
+	 * @param mixed[string] $errors List of found errors (in/out parameters).
 	 * @return boolean Returns TRUE if it matches.
 	 * @throws \JSONValidatorException
 	 */
@@ -443,26 +470,29 @@ class JSONValidator {
 		return $ok;
 	}
 	/**
-	 * @todo doc
+	 * This method forwards the validation of a field's value to another type
+	 * because the current one is just an alias.
 	 *
-	 * @param type $json @todo doc
-	 * @param type $path @todo doc
-	 * @param type $typeSpec @todo doc
-	 * @param type $errors @todo doc
-	 * @return type @todo doc
+	 * @param mixed $json Field value to check.
+	 * @param string $path Virtual path where this value is located.
+	 * @param mixed[string] $typeSpec Internal specification for the type to check.
+	 * @param mixed[string] $errors List of found errors (in/out parameters).
+	 * @return boolean Returns TRUE if it matches.
 	 * @throws \JSONValidatorException
 	 */
 	protected function validateTypeAlias($json, $path, $typeSpec, &$errors) {
 		return $this->validateType($json, $path, $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE], $errors);
 	}
 	/**
-	 * @todo doc
+	 * This method validates a field's value against a list of types until one
+	 * of them matches.
 	 *
-	 * @param type $json @todo doc
-	 * @param type $path @todo doc
-	 * @param type $typeSpec @todo doc
-	 * @param type $errors @todo doc
-	 * @return boolean @todo doc
+	 * @param mixed $json Field value to check.
+	 * @param string $path Virtual path where this value is located.
+	 * @param mixed[string] $typeSpec Internal specification for the type to check.
+	 * @param mixed[string] $errors List of found errors (in/out parameters).
+	 * @return boolean Returns TRUE if the value matches one of the listed
+	 * types.
 	 * @throws \JSONValidatorException
 	 */
 	protected function validateTypeList($json, $path, $typeSpec, &$errors) {
@@ -475,6 +505,9 @@ class JSONValidator {
 				break;
 			}
 		}
+		//
+		// Checking if a type matched, otherwise an error should be
+		// attached.
 		if(!$ok) {
 			$errors[] = [
 				JV_FIELD_MESSAGE => "Wrong type at '{$path}' (allowed types '".implode("', '", $typeSpec[JV_FIELD_TYPES])."').",
@@ -485,13 +518,13 @@ class JSONValidator {
 		return $ok;
 	}
 	/**
-	 * @todo doc
+	 * This method validates a field's value against a specific structure.
 	 *
-	 * @param type $json @todo doc
-	 * @param type $path @todo doc
-	 * @param type $typeSpec @todo doc
-	 * @param type $errors @todo doc
-	 * @return boolean @todo doc
+	 * @param mixed $json Field value to check.
+	 * @param string $path Virtual path where this value is located.
+	 * @param mixed[string] $typeSpec Internal specification for the type to check.
+	 * @param mixed[string] $errors List of found errors (in/out parameters).
+	 * @return boolean Returns TRUE if it matches.
 	 * @throws \JSONValidatorException
 	 */
 	protected function validateTypeStructure($json, $path, $typeSpec, &$errors) {
@@ -517,7 +550,9 @@ class JSONValidator {
 		return $ok;
 	}
 	/**
-	 * @todo doc
+	 * This method runs some validations on the list of specified types:
+	 * 	- Used types that weren't defined.
+	 * 	- Defined types that weren't used.
 	 *
 	 * @throws \JSONValidatorException
 	 */
