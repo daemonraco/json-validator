@@ -40,75 +40,94 @@ class JSONValidator {
 		JV_PRIMITIVE_TYPE_OBJECT,
 		JV_PRIMITIVE_TYPE_STRING
 	];
+	/**
+	 * @var string[] List of all types known as primitive that have a specific
+	 * way to be checked.
+	 */
 	protected static $_PrimitiveSpecialTypes = [
 		JV_PRIMITIVE_TYPE_REGEXP
 	];
 	/**
-	 * @var string @todo doc
+	 * @var string This is the pattern all type alias specifications should
+	 * match.
 	 */
 	protected static $_PatternTypeAliases = '/^(?P<name>[a-zA-Z0-9]+)(?P<mods>(\\{\\}|\\[\\])?)$/';
 	/**
-	 * @var string @todo doc
+	 * @var string This is the pattern all field type specifications should
+	 * match.
 	 */
 	protected static $_PatternFieldType = '/^(?P<required>[+-]?)(?P<type>[a-zA-Z0-9]+)$/';
 	//
 	// Protected properties.
 	/**
-	 * @var mixed[string] @todo doc
+	 * @var string Name of the first type to check.
 	 */
 	protected $_root = false;
 	/**
-	 * @var mixed[string] @todo doc
+	 * @var mixed[string] This is the loaded specification as is.
 	 */
 	protected $_specs = false;
 	/**
-	 * @var string @todo doc
+	 * @var string Physical location of the specification.
 	 */
 	protected $_specsPath = false;
 	/**
-	 * @var mixed[string] @todo doc
+	 * @var mixed[string] List of all loaded types associated to their
+	 * configurations.
 	 */
 	protected $_types = [];
 	/**
-	 * @var string[] @todo doc
+	 * @var string[] List of all non primitive types mentioned across all
+	 * type specifications.
 	 */
 	protected $_usedTypes = [];
 	//
 	// Magic methods.
 	/**
-	 * @todo doc
+	 * Class constructor.
 	 *
-	 * @param string $path @todo doc
+	 * @param string $path Abosulte path from where to load an specification.
+	 * @throws \JSONValidatorException
 	 */
-	public function __construct($path) {
+	protected function __construct($path) {
+		//
+		// Saving the path
 		$this->_specsPath = $path;
+		//
+		// Attepting to load specs.
 		$this->load();
 	}
 	//
 	// Public mehtods.
 	/**
-	 * @todo doc
+	 * This method validates a JSON string against the loaded specification.
 	 *
-	 * @param string $jsonString @todo doc
-	 * @param mixed[string] $info @todo doc
-	 * @return boolean @todo doc
+	 * @param string $jsonString JSON string to validate.
+	 * @param mixed[string] $info Extra information about the validation.
+	 * @return boolean Returns TRUE if the JSON string is valid.
 	 * @throws \JSONValidatorException
 	 */
 	public function validate($jsonString, &$info = false) {
 		$ok = true;
-
+		//
+		// Initializing the extra information strcuture.
 		$info = [
 			JV_FIELD_ERROR => false,
 			JV_FIELD_ERRORS => [],
 		];
-
+		//
+		// Loading JSON string.
 		$json = json_decode($jsonString);
+		//
+		// Checking for syntax errors.
 		if(!$json) {
 			$ok = false;
 			$info[JV_FIELD_ERRORS][] = [
-				JV_FIELD_MESSAGE => '['.json_last_error().'] '.json_last_error_msg()
+				JV_FIELD_MESSAGE => 'The give JSON is not valid. ['.json_last_error().'] '.json_last_error_msg()
 			];
 		} else {
+			//
+			// Validating the main field.
 			$ok = $this->validateType($json, '/', $this->_root[JV_FIELD_TYPE], $info[JV_FIELD_ERRORS]);
 		}
 		//
@@ -120,21 +139,25 @@ class JSONValidator {
 		return $ok;
 	}
 	/**
-	 * @todo doc
+	 * This method is an alias for 'validate()' that takes a JSON file path
+	 * instead of a JSON string.
 	 *
-	 * @param string $path @todo doc
-	 * @param mixed[string] $info @todo doc
-	 * @return boolean @todo doc
+	 * @param string $path Absolute path of a JSON file to validate.
+	 * @param mixed[string] $info Extra information about the validation.
+	 * @return boolean Returns TRUE if the file's contents are valid.
 	 * @throws \JSONValidatorException
 	 */
 	public function validatePath($path, &$info = false) {
 		$ok = false;
-
+		//
+		// Checking if the path is a valid file and readable.
 		if(!is_file($path)) {
 			throw new JSONValidatorException(__CLASS__.": Path '{$path}' is not a file.");
 		} elseif(!is_readable($path)) {
 			throw new JSONValidatorException(__CLASS__.": Path '{$path}' is not readable.");
 		} else {
+			//
+			// Forwaring checks.
 			$ok = $this->validate(file_get_contents($path), $info);
 		}
 
@@ -142,6 +165,15 @@ class JSONValidator {
 	}
 	//
 	// Protected mehtods.
+	/**
+	 * @todo doc
+	 *
+	 * @param type $typeName @todo doc
+	 * @param type $typeString @todo doc
+	 * @param type $isField @todo doc
+	 * @return boolean @todo doc
+	 * @throws \JSONValidatorException
+	 */
 	protected function expandType($typeName, $typeString, $isField = true) {
 		$out = [];
 
@@ -186,6 +218,11 @@ class JSONValidator {
 
 		return $out;
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @throws JSONValidatorException
+	 */
 	protected function load() {
 		//
 		// Loading path.
@@ -254,6 +291,16 @@ class JSONValidator {
 		// Validating known types.
 		$this->validateUsedTypes();
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @param type $json @todo doc
+	 * @param type $path @todo doc
+	 * @param type $typeSpec @todo doc
+	 * @param type $errors @todo doc
+	 * @return boolean @todo doc
+	 * @throws \JSONValidatorException
+	 */
 	protected function validateContainer($json, $path, $typeSpec, &$errors) {
 		$ok = true;
 
@@ -277,6 +324,13 @@ class JSONValidator {
 
 		return $ok;
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @param type $field @todo doc
+	 * @param type $type @todo doc
+	 * @return type @todo doc
+	 */
 	protected function validatePrimitive($field, $type) {
 		$ok = false;
 
@@ -306,9 +360,26 @@ class JSONValidator {
 
 		return $ok;
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @param type $field @todo doc
+	 * @param type $regexp @todo doc
+	 * @return type @todo doc
+	 */
 	protected function validateRegExp($field, $regexp) {
 		return preg_match($regexp, $field);
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @param type $json @todo doc
+	 * @param type $path @todo doc
+	 * @param type $typeName @todo doc
+	 * @param type $errors @todo doc
+	 * @return type @todo doc
+	 * @throws \JSONValidatorException
+	 */
 	protected function validateType($json, $path, $typeName, &$errors) {
 		$ok = false;
 
@@ -349,9 +420,29 @@ class JSONValidator {
 
 		return $ok;
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @param type $json @todo doc
+	 * @param type $path @todo doc
+	 * @param type $typeSpec @todo doc
+	 * @param type $errors @todo doc
+	 * @return type @todo doc
+	 * @throws \JSONValidatorException
+	 */
 	protected function validateTypeAlias($json, $path, $typeSpec, &$errors) {
 		return $this->validateType($json, $path, $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE], $errors);
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @param type $json @todo doc
+	 * @param type $path @todo doc
+	 * @param type $typeSpec @todo doc
+	 * @param type $errors @todo doc
+	 * @return boolean @todo doc
+	 * @throws \JSONValidatorException
+	 */
 	protected function validateTypeList($json, $path, $typeSpec, &$errors) {
 		$ok = false;
 
@@ -371,6 +462,16 @@ class JSONValidator {
 
 		return $ok;
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @param type $json @todo doc
+	 * @param type $path @todo doc
+	 * @param type $typeSpec @todo doc
+	 * @param type $errors @todo doc
+	 * @return boolean @todo doc
+	 * @throws \JSONValidatorException
+	 */
 	protected function validateTypeStructure($json, $path, $typeSpec, &$errors) {
 		$ok = true;
 
@@ -393,6 +494,11 @@ class JSONValidator {
 
 		return $ok;
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @throws \JSONValidatorException
+	 */
 	protected function validateUsedTypes() {
 		//
 		// Validating undefined types.
@@ -411,13 +517,27 @@ class JSONValidator {
 	}
 	//
 	// Public class methods.
+	/**
+	 * This factory method creates a validator for each requested path. If it
+	 * was already requested it won't reload and re-analyse the specification.
+	 *
+	 * @param string $path Abosulte path from where to load an specification.
+	 * @return JSONValidator Fully loaded validator.
+	 * @throws \JSONValidatorException
+	 */
 	public static function GetValidator($path) {
+		//
+		// Validators cache.
 		static $knwonValidators = [];
-
+		//
+		// Checking if it was already loaded.
 		if(!isset($knwonValidators[$path])) {
+			//
+			// Creating a new validator.
 			$knwonValidators[$path] = new self($path);
 		}
-
+		//
+		// Returning the requeste validator.
 		return $knwonValidators[$path];
 	}
 }
