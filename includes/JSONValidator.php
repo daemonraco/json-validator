@@ -347,23 +347,38 @@ class JSONValidator {
 	 * @throws \JSONValidatorException
 	 */
 	protected function validateContainer($json, $path, $typeSpec, &$errors) {
+		//
+		// Default values.
 		$ok = true;
-
 		$subPath = "{$path}/?";
 		$containerType = $typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER];
-		foreach($json as $key => $value) {
-			switch($containerType) {
-				case JV_CONTAINER_TYPE_OBJECT:
-					$subPath = "{$path}/{$key}";
+		//
+		// Checking if it's a valid container type.
+		if(!in_array($containerType, self::$_ContainerTypes)) {
+			$errors[] = [
+				JV_FIELD_MESSAGE => "Field at '{$path}' is not a valid container."
+			];
+			$ok = false;
+		} else {
+			//
+			// Checking each entry.
+			foreach($json as $key => $value) {
+				//
+				// Building the right path for further logs.
+				switch($containerType) {
+					case JV_CONTAINER_TYPE_OBJECT:
+						$subPath = "{$path}/{$key}";
+						break;
+					case JV_CONTAINER_TYPE_ARRAY:
+						$subPath = "{$path}[{$key}]";
+						break;
+				}
+				//
+				// Forwarding the validation for the current item.
+				if(!$this->validateType($value, $subPath, $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE], $errors)) {
+					$ok = false;
 					break;
-				case JV_CONTAINER_TYPE_ARRAY:
-					$subPath = "{$path}[{$key}]";
-					break;
-			}
-
-			if(!$this->validateType($value, $subPath, $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE], $errors)) {
-				$ok = false;
-				break;
+				}
 			}
 		}
 
@@ -435,8 +450,11 @@ class JSONValidator {
 			// Forwarding to a simple validation.
 			$ok = $this->validatePrimitive($json, $typeName);
 		} else {
+			//
+			// Type's specification shortcut.
 			$typeSpec = $this->_types[$typeName];
-
+			//
+			// Checking where this check should be forwarded.
 			switch($typeSpec[JV_FIELD_STYPE]) {
 				case JV_STYPE_STRUCTURE:
 					$ok = $this->validateTypeStructure($json, $path, $typeSpec, $errors);
@@ -453,6 +471,8 @@ class JSONValidator {
 					}
 					break;
 				case JV_STYPE_ALIAS:
+					//
+					// Checking if this alias is a container.
 					if($typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]) {
 						$ok = $this->validateContainer($json, $path, $typeSpec, $errors);
 					} else {
@@ -461,6 +481,8 @@ class JSONValidator {
 					break;
 			}
 		}
+		//
+		// Adding a generic error information.
 		if(!$ok) {
 			$errors[] = [
 				JV_FIELD_MESSAGE => "The type of field at {$path} is not {$typeName}."
@@ -496,9 +518,12 @@ class JSONValidator {
 	 * @throws \JSONValidatorException
 	 */
 	protected function validateTypeList($json, $path, $typeSpec, &$errors) {
+		//
+		// Default errors.
 		$ok = false;
-
 		$subErrors = [];
+		//
+		// Checking all types in the list until one matches.
 		foreach($typeSpec[JV_FIELD_TYPES] as $typeName) {
 			if($this->validateType($json, $path, $typeName, $subErrors)) {
 				$ok = true;
@@ -529,14 +554,20 @@ class JSONValidator {
 	 */
 	protected function validateTypeStructure($json, $path, $typeSpec, &$errors) {
 		$ok = true;
-
+		//
+		// Checking each known field agains the field's value.
 		foreach($typeSpec[JV_FIELD_FIELDS] as $fieldName => $fieldConf) {
+			//
+			// Checking if it's present.
 			if(isset($json->{$fieldName})) {
 				if(!$this->validateType($json->{$fieldName}, "{$path}/{$fieldName}", $fieldConf[JV_FIELD_TYPE], $errors)) {
 					$ok = false;
 					break;
 				}
 			} else {
+				//
+				// If it's not present and it should, this check
+				// failes and an error is attached.
 				if($fieldConf[JV_FIELD_REQUIRED]) {
 					$errors[] = [
 						JV_FIELD_MESSAGE => "Requiered field at '{$path}/{$fieldName}' is not present."
