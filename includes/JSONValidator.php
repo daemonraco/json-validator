@@ -219,30 +219,38 @@ class JSONValidator {
 		return $out;
 	}
 	/**
-	 * @todo doc
+	 * This method takes a JSON specification file, loads its contents and
+	 * parses the specification.
 	 *
 	 * @throws JSONValidatorException
 	 */
 	protected function load() {
 		//
-		// Loading path.
+		// Checking if the JSON specification file is actually a file and
+		// readable.
 		if(!is_file($this->_specsPath)) {
 			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a file.");
 		} elseif(!is_readable($this->_specsPath)) {
 			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not readable.");
 		} else {
+			//
+			// Reading and parsing the content.
 			$this->_specs = json_decode(file_get_contents($this->_specsPath));
+			//
+			// Checking for syntax errors.
 			if(!$this->_specs) {
 				throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a valid JSON file. [".json_last_error().'] '.json_last_error_msg());
 			}
 		}
-
+		//
+		// Checking for mandatory fields.
 		foreach(['types', 'root'] as $field) {
 			if(!isset($this->_specs->{$field})) {
 				throw new JSONValidatorException(__CLASS__.": Specification has no field '{$field}'.");
 			}
 		}
-
+		//
+		// Checking and loading each non primitive type specification.
 		foreach($this->_specs->types as $typeName => $typeConf) {
 			$aux = [];
 			//
@@ -252,34 +260,44 @@ class JSONValidator {
 			// If it's a string it may be something else.
 			if(is_object($typeConf)) {
 				$aux[JV_FIELD_STYPE] = JV_STYPE_STRUCTURE;
+				//
+				// Loading each known field of the structure.
 				$aux[JV_FIELD_FIELDS] = [];
 				foreach($typeConf as $fieldName => $fieldType) {
-					if(!is_string($fieldType)) {
-						throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
-					}
-
 					$aux[JV_FIELD_FIELDS][$fieldName] = $this->expandType($typeName, $fieldType);
 				}
 			} elseif(is_array($typeConf)) {
 				$aux[JV_FIELD_STYPE] = JV_STYPE_TYPES_LIST;
+				//
+				// Loading each possible type.
 				$aux[JV_FIELD_TYPES] = [];
 				foreach($typeConf as $type) {
 					$aux[JV_FIELD_TYPES][] = $type;
+					//
+					// Counting it as an used type.
 					$this->_usedTypes[] = $type;
 				}
 			} elseif(is_string($typeConf)) {
+				//
+				// Expanding type
 				$aux[JV_FIELD_TYPE] = $this->expandType($typeName, $typeConf, false);
+				//
+				// Checking if it's just an alias or a regular
+				// expression checker.
 				$aux[JV_FIELD_STYPE] = $aux[JV_FIELD_TYPE][JV_FIELD_TYPE] == JV_PRIMITIVE_TYPE_REGEXP ? JV_STYPE_REGEXP : JV_STYPE_ALIAS;
 			} else {
 				throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
 			}
-
+			//
+			// Adding this type to the list.
 			$this->_types[$typeName] = $aux;
 		}
 		//
 		// Loading root type.
 		if(is_string($this->_specs->root)) {
-			$this->_root = $this->expandType('ROOT', $this->_specs->root);
+			$this->_root = $this->expandType('ROOT', $this->_specs->root, false);
+			//
+			// Counting it as an used type.
 			$this->_usedTypes[] = $this->_specs->root;
 		} else {
 			throw new JSONValidatorException(__CLASS__.": Root type is not well defined.");
@@ -325,50 +343,51 @@ class JSONValidator {
 		return $ok;
 	}
 	/**
-	 * @todo doc
+	 * This method validates a field's value based on a type name assuming
+	 * it's a primitive type value.
 	 *
-	 * @param type $field @todo doc
-	 * @param type $type @todo doc
-	 * @return type @todo doc
+	 * @param string $value Value to validate.
+	 * @param string $type Primitive type name to validate.
+	 * @return boolean Returns TRUE if it matches.
 	 */
-	protected function validatePrimitive($field, $type) {
+	protected function validatePrimitive($value, $type) {
 		$ok = false;
 
 		switch($type) {
 			case JV_PRIMITIVE_TYPE_ARRAY:
-				$ok = is_array($field);
+				$ok = is_array($value);
 				break;
 			case JV_PRIMITIVE_TYPE_BOOLEAN:
-				$ok = is_bool($field);
+				$ok = is_bool($value);
 				break;
 			case JV_PRIMITIVE_TYPE_FLOAT:
-				$ok = is_float($field);
+				$ok = is_float($value);
 				break;
 			case JV_PRIMITIVE_TYPE_INT:
-				$ok = is_int($field);
+				$ok = is_int($value);
 				break;
 			case JV_PRIMITIVE_TYPE_MIXED:
 				$ok = true;
 				break;
 			case JV_PRIMITIVE_TYPE_OBJECT:
-				$ok = is_object($field);
+				$ok = is_object($value);
 				break;
 			case JV_PRIMITIVE_TYPE_STRING:
-				$ok = is_string($field);
+				$ok = is_string($value);
 				break;
 		}
 
 		return $ok;
 	}
 	/**
-	 * @todo doc
+	 * This method validates a field's value against a regular expression.
 	 *
-	 * @param type $field @todo doc
-	 * @param type $regexp @todo doc
-	 * @return type @todo doc
+	 * @param string $value Value to validate.
+	 * @param string $regexp Regular expresion string to use as pattern.
+	 * @return boolean Returns TRUE if it matches.
 	 */
-	protected function validateRegExp($field, $regexp) {
-		return preg_match($regexp, $field);
+	protected function validateRegExp($value, $regexp) {
+		return preg_match($regexp, $value);
 	}
 	/**
 	 * @todo doc
