@@ -40,6 +40,9 @@ class JSONValidator {
 		JV_PRIMITIVE_TYPE_OBJECT,
 		JV_PRIMITIVE_TYPE_STRING
 	];
+	protected static $_PrimitiveSpecialTypes = [
+		JV_PRIMITIVE_TYPE_REGEXP
+	];
 	/**
 	 * @var string @todo doc
 	 */
@@ -149,10 +152,17 @@ class JSONValidator {
 			$out[JV_FIELD_TYPE] = $reqMatch['type'];
 		} else {
 			if(!preg_match(self::$_PatternTypeAliases, $typeString, $reqMatch)) {
-				throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
+				if(@preg_match($typeString, null) === false) {
+					throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
+				} else {
+					//
+					// This is a regular expresion.
+					$out[JV_FIELD_TYPE] = JV_PRIMITIVE_TYPE_REGEXP;
+					$out[JV_FIELD_REGEXP] = $typeString;
+				}
+			} else {
+				$out[JV_FIELD_TYPE] = $reqMatch['name'];
 			}
-
-			$out[JV_FIELD_TYPE] = $reqMatch['name'];
 		}
 
 		$out[JV_FIELD_PRIMITIVE] = in_array($out[JV_FIELD_TYPE], self::$_PrimitiveTypes);
@@ -212,8 +222,8 @@ class JSONValidator {
 					$this->_usedTypes[] = $type;
 				}
 			} elseif(is_string($typeConf)) {
-				$aux[JV_FIELD_STYPE] = JV_STYPE_ALIAS;
 				$aux[JV_FIELD_TYPE] = $this->expandType($typeName, $typeConf, false);
+				$aux[JV_FIELD_STYPE] = $aux[JV_FIELD_TYPE][JV_FIELD_TYPE] == JV_PRIMITIVE_TYPE_REGEXP ? JV_STYPE_REGEXP : JV_STYPE_ALIAS;
 			} else {
 				throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
 			}
@@ -230,7 +240,7 @@ class JSONValidator {
 		}
 		//
 		// Clearing used types list.
-		$this->_usedTypes = array_values(array_diff(array_unique($this->_usedTypes), self::$_PrimitiveTypes));
+		$this->_usedTypes = array_values(array_diff(array_unique($this->_usedTypes), self::$_PrimitiveTypes, self::$_PrimitiveSpecialTypes));
 		//
 		// Validating known types.
 		$this->validateUsedTypes();
@@ -287,6 +297,9 @@ class JSONValidator {
 
 		return $ok;
 	}
+	protected function validateRegExp($field, $regexp) {
+		return preg_match($regexp, $field);
+	}
 	protected function validateType($json, $path, $typeName, &$errors) {
 		$ok = false;
 
@@ -301,6 +314,14 @@ class JSONValidator {
 					break;
 				case JV_STYPE_TYPES_LIST:
 					$ok = $this->validateTypeList($json, $path, $typeSpec, $errors);
+					break;
+				case JV_STYPE_REGEXP:
+					$ok = $this->validateRegExp($json, $typeSpec[JV_FIELD_TYPE][JV_FIELD_REGEXP]);
+					if(!$ok) {
+						$errors[] = [
+							JV_FIELD_MESSAGE => "Field at '{$path}' does not match the pattern '{$typeSpec[JV_FIELD_TYPE][JV_FIELD_REGEXP]}'."
+						];
+					}
 					break;
 				case JV_STYPE_ALIAS:
 					if($typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]) {
@@ -334,7 +355,8 @@ class JSONValidator {
 		}
 		if(!$ok) {
 			$errors[] = [
-				JV_FIELD_MESSAGE => "Wrong type at '{$path}' (allowed types '".implode("', '", $typeSpec[JV_FIELD_TYPES])."')."
+				JV_FIELD_MESSAGE => "Wrong type at '{$path}' (allowed types '".implode("', '", $typeSpec[JV_FIELD_TYPES])."').",
+				JV_FIELD_ERRORS => $subErrors
 			];
 		}
 

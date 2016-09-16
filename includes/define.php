@@ -15,6 +15,7 @@ define('JV_FIELD_FIELD_CONF', 'field-conf');
 define('JV_FIELD_MESSAGE', 'message');
 define('JV_FIELD_MODS', 'mods');
 define('JV_FIELD_PRIMITIVE', 'primitive');
+define('JV_FIELD_REGEXP', 'regexp');
 define('JV_FIELD_REQUIRED', 'required');
 define('JV_FIELD_STYPE', 'spec-type');
 define('JV_FIELD_SUBTYPE', 'subtype');
@@ -30,6 +31,7 @@ define('JV_PRIMITIVE_TYPE_FLOAT', 'float');
 define('JV_PRIMITIVE_TYPE_INT', 'int');
 define('JV_PRIMITIVE_TYPE_MIXED', 'mixed');
 define('JV_PRIMITIVE_TYPE_OBJECT', 'object');
+define('JV_PRIMITIVE_TYPE_REGEXP', 'regexp');
 define('JV_PRIMITIVE_TYPE_STRING', 'string');
 //@}
 //
@@ -41,6 +43,7 @@ define('JV_CONTAINER_TYPE_OBJECT', JV_PRIMITIVE_TYPE_OBJECT);
 // Types classes @{
 define('JV_STYPE_ALIAS', 'alias');
 define('JV_STYPE_TYPES_LIST', 'list');
+define('JV_STYPE_REGEXP', 'regexp');
 define('JV_STYPE_STRUCTURE', 'structure');
 //@}
 //
