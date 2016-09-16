@@ -202,7 +202,9 @@ class JSONValidator {
 						throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
 					}
 
-					$aux[JV_FIELD_FIELDS][$fieldName] = $this->expandType($typeName, $fieldType);
+					$expansion = $this->expandType($typeName, $fieldType);
+					$aux[JV_FIELD_FIELDS][$fieldName] = $expansion;
+					$this->_usedTypes[] = $expansion[JV_FIELD_TYPE];
 				}
 			} elseif(is_array($typeConf)) {
 				$aux[JV_FIELD_STYPE] = JV_STYPE_TYPES_LIST;
@@ -214,8 +216,8 @@ class JSONValidator {
 			} elseif(is_string($typeConf)) {
 				$aux[JV_FIELD_STYPE] = JV_STYPE_ALIAS;
 				$expansion = $this->expandType($typeName, $typeConf, false);
-				unset($expansion[JV_FIELD_REQUIRED]);
 				$aux[JV_FIELD_TYPE] = $expansion;
+				$this->_usedTypes[] = $expansion[JV_FIELD_TYPE];
 			} else {
 				throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
 			}
