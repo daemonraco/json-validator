@@ -306,7 +306,7 @@ class JSONValidator {
 					if($typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]) {
 						$ok = $this->validateContainer($json, $path, $typeSpec, $errors);
 					} else {
-						$this->validateTypeAlias($json, $path, $typeSpec, $errors);
+						$ok = $this->validateTypeAlias($json, $path, $typeSpec, $errors);
 					}
 					break;
 			}
@@ -320,7 +320,7 @@ class JSONValidator {
 		return $ok;
 	}
 	protected function validateTypeAlias($json, $path, $typeSpec, &$errors) {
-		return $this->validateType($json, $path, $typeSpec[JV_FIELD_TYPE], $errors);
+		return $this->validateType($json, $path, $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE], $errors);
 	}
 	protected function validateTypeList($json, $path, $typeSpec, &$errors) {
 		$ok = false;
