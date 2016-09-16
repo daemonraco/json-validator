@@ -28,14 +28,14 @@ Let's say you have a JSON file like this one:
 [
 	{
 		"name": "Flour",
-		"description": "Useful to make bread"
-		"price": 1.2
-		"type": "comestible"
+		"description": "Useful to make bread",
+		"price": 1.2,
+		"type": "comestible",
 		"status": "available"
 	}, {
 		"name": "Egg",
-		"price": .73
-		"type": "comestible"
+		"price": .73,
+		"type": "comestible",
 		"status": "soldout",
 		"notes": "we've run out of these last week"
 	}
@@ -50,7 +50,7 @@ structure like this one:
 		"Product": {
 			"name": "+string",
 			"description": "Description",
-			"price": "+float"
+			"price": "+float",
 			"type": "+string",
 			"status": "ProductStatus",
 			"notes": "Notes"
