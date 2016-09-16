@@ -34,7 +34,7 @@ Let's say you have a JSON file like this one:
 		"status": "available"
 	}, {
 		"name": "Egg",
-		"price": .73,
+		"price": 0.73,
 		"type": "comestible",
 		"status": "soldout",
 		"notes": "we've run out of these last week"

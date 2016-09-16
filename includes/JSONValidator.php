@@ -105,13 +105,16 @@ class JSONValidator {
 		$json = json_decode($jsonString);
 		if(!$json) {
 			$ok = false;
-			$info[JV_FIELD_ERROR] = '[{'.json_last_error().'}] {'.json_last_error_msg().'}';
+			$info[JV_FIELD_ERRORS][] = [
+				JV_FIELD_MESSAGE => '['.json_last_error().'] '.json_last_error_msg()
+			];
 		} else {
 			$ok = $this->validateType($json, '/', $this->_root[JV_FIELD_TYPE], $info[JV_FIELD_ERRORS]);
-
-			if(count($info[JV_FIELD_ERRORS])) {
-				$info[JV_FIELD_ERROR] = $info[JV_FIELD_ERRORS][0];
-			}
+		}
+		//
+		// Getting the most important error.
+		if(count($info[JV_FIELD_ERRORS])) {
+			$info[JV_FIELD_ERROR] = $info[JV_FIELD_ERRORS][0];
 		}
 
 		return $ok;
@@ -194,6 +197,12 @@ class JSONValidator {
 			$this->_specs = json_decode(file_get_contents($this->_specsPath));
 			if(!$this->_specs) {
 				throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a valid JSON file. [".json_last_error().'] '.json_last_error_msg());
+			}
+		}
+
+		foreach(['types', 'root'] as $field) {
+			if(!isset($this->_specs->{$field})) {
+				throw new JSONValidatorException(__CLASS__.": Specification has no field '{$field}'.");
 			}
 		}
 
