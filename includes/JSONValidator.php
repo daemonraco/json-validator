@@ -396,13 +396,16 @@ class JSONValidator {
 	 * @param type $path @todo doc
 	 * @param type $typeName @todo doc
 	 * @param type $errors @todo doc
-	 * @return type @todo doc
+	 * @return boolean Returns TRUE if it matches.
 	 * @throws \JSONValidatorException
 	 */
 	protected function validateType($json, $path, $typeName, &$errors) {
 		$ok = false;
-
+		//
+		// Checking if it's a primitive type or not.
 		if(in_array($typeName, self::$_PrimitiveTypes)) {
+			//
+			// Forwarding to a simple validation.
 			$ok = $this->validatePrimitive($json, $typeName);
 		} else {
 			$typeSpec = $this->_types[$typeName];
