@@ -1,0 +1,24 @@
+language: php
+#
+# Required test environments.
+php:
+  - '5.5'
+  - '5.6'
+  - '7.0'
+  - '7.1'
+  - nightly
+matrix:
+  allow_failures:
+    - php: nightly
+    - php: '7.1'
+#
+# Notifications.
+notifications:
+  irc: "irc.freenode.org#TooBasic"
+#
+# Pre-installation steps.
+before_install:
+  - composer require phpunit/phpunit
+
+script:
+  - ./vendor/phpunit/phpunit/phpunit --configuration phpunit.xml

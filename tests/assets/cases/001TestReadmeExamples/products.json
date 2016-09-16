@@ -1,0 +1,15 @@
+[
+	{
+		"name": "Flour",
+		"description": "Useful to make bread",
+		"price": 1.2,
+		"type": "comestible",
+		"status": "available"
+	}, {
+		"name": "Egg",
+		"price": 0.73,
+		"type": "comestible",
+		"status": "soldout",
+		"notes": "we've run out of these last week"
+	}
+]
