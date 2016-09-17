@@ -28,7 +28,7 @@ class BasicFilesValidations extends JSONValidatorScaffold {
 
 		$exceptionMessage = false;
 		try {
-			$check = $validator->validatePath(self::$_AssetsDirectory.'/NON-EXISTING-FILE', $info);
+			$validator->validatePath(self::$_AssetsDirectory.'/NON-EXISTING-FILE');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
@@ -39,8 +39,6 @@ class BasicFilesValidations extends JSONValidatorScaffold {
 	public function testInvalidFileToValidate() {
 		$validator = JSONValidator::GetValidator(self::$_AssetsDirectory.'/products-specs.json');
 		$check = $validator->validatePath(self::$_AssetsDirectory.'/invalid-spec.json', $info);
-
-		debugit($info);
 
 		$this->assertFalse($check, "Validation of an invalid JSON file should fail.");
 		$this->assertTrue(is_array($info), "Extra information is not an array.");

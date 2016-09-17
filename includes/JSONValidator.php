@@ -276,6 +276,11 @@ class JSONValidator {
 			}
 		}
 		//
+		// Field 'types' should be an object.
+		if(!is_object($this->_specs->types)) {
+			throw new JSONValidatorException(__CLASS__.": Specification field 'types' is not an object.");
+		}
+		//
 		// Checking and loading each non primitive type specification.
 		foreach($this->_specs->types as $typeName => $typeConf) {
 			$aux = [];
