@@ -1,5 +1,7 @@
 # JSON Validator
 
+[![Build Status](https://travis-ci.org/daemonraco/json-validator.svg?branch=master)](https://travis-ci.org/daemonraco/json-validator)
+
 ## What is it?
 This is a small PHP library useful to validate JSON structures.
 This is similar to [DTD](https://en.wikipedia.org/wiki/Document_type_definition)
