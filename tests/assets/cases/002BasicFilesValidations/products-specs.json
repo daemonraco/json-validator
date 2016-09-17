@@ -1,0 +1,17 @@
+{
+	"types": {
+		"Products": "Product[]",
+		"Product": {
+			"name": "+string",
+			"description": "Description",
+			"price": "+float",
+			"type": "+string",
+			"status": "ProductStatus",
+			"notes": "Notes"
+		},
+		"ProductStatus": "/^(available|soldout)$/",
+		"Notes": ["string", "object"],
+		"Description": "string"
+	},
+	"root": "Products"
+}
