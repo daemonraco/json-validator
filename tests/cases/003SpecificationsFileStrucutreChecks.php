@@ -19,7 +19,7 @@ class SpecificationsFileStrucutreChecks extends JSONValidatorScaffold {
 		$exceptionMessage = false;
 
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory."/specs-wrong-root.json");
+			JSONValidator::GetValidator(self::$_AssetsDirectory.'/specs-wrong-root.json');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
@@ -31,12 +31,36 @@ class SpecificationsFileStrucutreChecks extends JSONValidatorScaffold {
 		$exceptionMessage = false;
 
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory."/specs-wrong-types.json");
+			JSONValidator::GetValidator(self::$_AssetsDirectory.'/specs-wrong-types.json');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
 
 		$this->assertTrue($exceptionMessage !== false, "Trying to use a wrong value on field 'root' doesn't trigger an error.");
 		$this->assertRegExp("~JSONValidator: Specification field 'types' is not an object.~", $exceptionMessage, "The error message is not as expected.");
+	}
+	public function testUnusedType() {
+		$exceptionMessage = false;
+
+		try {
+			JSONValidator::GetValidator(self::$_AssetsDirectory.'/specs-unused-type.json');
+		} catch(\JSONValidatorException $e) {
+			$exceptionMessage = $e->getMessage();
+		}
+
+		$this->assertTrue($exceptionMessage !== false, "Trying to use a wrong value on field 'root' doesn't trigger an error.");
+		$this->assertRegExp("~JSONValidator: Type 'UnusedType' is defined but not used.~", $exceptionMessage, "The error message is not as expected.");
+	}
+	public function testUndefinedType() {
+		$exceptionMessage = false;
+
+		try {
+			JSONValidator::GetValidator(self::$_AssetsDirectory."/specs-undefined-type.json");
+		} catch(\JSONValidatorException $e) {
+			$exceptionMessage = $e->getMessage();
+		}
+
+		$this->assertTrue($exceptionMessage !== false, "Trying to use a wrong value on field 'root' doesn't trigger an error.");
+		$this->assertRegExp("~JSONValidator: Type 'UndefinedType' is used but not defined.~", $exceptionMessage, "The error message is not as expected.");
 	}
 }
