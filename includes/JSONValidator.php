@@ -85,17 +85,9 @@ class JSONValidator {
 	// Magic methods.
 	/**
 	 * Class constructor.
-	 *
-	 * @param string $path Abosulte path from where to load an specification.
-	 * @throws \JSONValidatorException
 	 */
-	protected function __construct($path) {
-		//
-		// Saving the path
-		$this->_specsPath = $path;
-		//
-		// Attepting to load specs.
-		$this->load();
+	protected function __construct() {
+
 	}
 	//
 	// Public mehtods.
@@ -252,23 +244,6 @@ class JSONValidator {
 	 */
 	protected function load() {
 		//
-		// Checking if the JSON specification file is actually a file and
-		// readable.
-		if(!is_file($this->_specsPath)) {
-			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a file.");
-		} elseif(!is_readable($this->_specsPath)) {
-			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not readable.");
-		} else {
-			//
-			// Reading and parsing the content.
-			$this->_specs = json_decode(file_get_contents($this->_specsPath));
-			//
-			// Checking for syntax errors.
-			if(!$this->_specs) {
-				throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a valid JSON file. [".json_last_error().'] '.json_last_error_msg());
-			}
-		}
-		//
 		// Checking for mandatory fields.
 		foreach(['types', 'root'] as $field) {
 			if(!isset($this->_specs->{$field})) {
@@ -339,6 +314,46 @@ class JSONValidator {
 		//
 		// Validating known types.
 		$this->validateUsedTypes();
+	}
+	/**
+	 * This method loads specifications from a file.
+	 *
+	 * @param string $path Abosulte path from where to load an specification.
+	 * @throws \JSONValidatorException
+	 */
+	protected function loadPath($path) {
+		//
+		// Saving the path
+		$this->_specsPath = $path;
+		//
+		// Checking if the JSON specification file is actually a file and
+		// readable.
+		if(!is_file($this->_specsPath)) {
+			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a file.");
+		} elseif(!is_readable($this->_specsPath)) {
+			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not readable.");
+		} else {
+			$this->loadSpec(file_get_contents($this->_specsPath));
+		}
+	}
+	/**
+	 * This method loads specifications from a string.
+	 *
+	 * @param string $jsonString Specification as a string.
+	 * @throws \JSONValidatorException
+	 */
+	protected function loadSpec($jsonString) {
+		//
+		// Reading and parsing the content.
+		$this->_specs = json_decode($jsonString);
+		//
+		// Checking for syntax errors.
+		if(!$this->_specs) {
+			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a valid JSON file. [".json_last_error().'] '.json_last_error_msg());
+		}
+		//
+		// Attepting to load specs.
+		$this->load();
 	}
 	/**
 	 * This method validates a field's value as if it were a list of other
@@ -618,7 +633,7 @@ class JSONValidator {
 	 * @return JSONValidator Fully loaded validator.
 	 * @throws \JSONValidatorException
 	 */
-	public static function GetValidator($path) {
+	public static function LoadFromFile($path) {
 		//
 		// Validators cache.
 		static $knwonValidators = [];
@@ -627,10 +642,31 @@ class JSONValidator {
 		if(!isset($knwonValidators[$path])) {
 			//
 			// Creating a new validator.
-			$knwonValidators[$path] = new self($path);
+			$knwonValidators[$path] = new self();
+			//
+			// Loading...
+			$knwonValidators[$path]->loadPath($path);
 		}
 		//
 		// Returning the requeste validator.
 		return $knwonValidators[$path];
+	}
+	/**
+	 * This factory method creates a validator based on a specification.
+	 *
+	 * @param string $jsonString Specification as a string.
+	 * @return JSONValidator Fully loaded validator.
+	 * @throws \JSONValidatorException
+	 */
+	public static function LoadFromString($jsonString) {
+		//
+		// Creating a validator.
+		$validator = new self();
+		//
+		// Loading...
+		$validator->loadSpec($jsonString);
+		//
+		// Returning the requeste validator.
+		return $validator;
 	}
 }

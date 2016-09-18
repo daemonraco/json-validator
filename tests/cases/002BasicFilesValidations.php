@@ -4,7 +4,7 @@ class BasicFilesValidations extends JSONValidatorScaffold {
 	public function testNonExistingSpecificationFile() {
 		$exceptionMessage = false;
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory.'/NON-EXISTING-SPECS-FILE');
+			JSONValidator::LoadFromFile(self::$_AssetsDirectory.'/NON-EXISTING-SPECS-FILE');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
@@ -15,7 +15,7 @@ class BasicFilesValidations extends JSONValidatorScaffold {
 	public function testInvalidSpecificationFile() {
 		$exceptionMessage = false;
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory.'/invalid-spec.json');
+			JSONValidator::LoadFromFile(self::$_AssetsDirectory.'/invalid-spec.json');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
@@ -24,7 +24,7 @@ class BasicFilesValidations extends JSONValidatorScaffold {
 		$this->assertRegExp("~JSONValidator: Path '.*/invalid-spec.json' is not a valid JSON file. \\[.*\\] .*~", $exceptionMessage, "The error message is not as expected.");
 	}
 	public function testNonExistingFileToValidate() {
-		$validator = JSONValidator::GetValidator(self::$_AssetsDirectory.'/products-specs.json');
+		$validator = JSONValidator::LoadFromFile(self::$_AssetsDirectory.'/products-specs.json');
 
 		$exceptionMessage = false;
 		try {
@@ -37,7 +37,7 @@ class BasicFilesValidations extends JSONValidatorScaffold {
 		$this->assertRegExp("~JSONValidator: Path '.*/NON-EXISTING-FILE' is not a file.~", $exceptionMessage, "The error message is not as expected.");
 	}
 	public function testInvalidFileToValidate() {
-		$validator = JSONValidator::GetValidator(self::$_AssetsDirectory.'/products-specs.json');
+		$validator = JSONValidator::LoadFromFile(self::$_AssetsDirectory.'/products-specs.json');
 		$check = $validator->validatePath(self::$_AssetsDirectory.'/invalid-spec.json', $info);
 
 		$this->assertFalse($check, "Validation of an invalid JSON file should fail.");

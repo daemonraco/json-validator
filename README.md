@@ -15,7 +15,7 @@ Here is an example of how to validate a JSON file stored at
 // Loading the library.
 require_once '/path/to/library/json-validator.php';
 // Ferching a validator.
-$validator = new JSONValidator('/path/to/json-specification.json');
+$validator = JSONValidator::LoadFromFile('/path/to/json-specification.json');
 // Validating...
 $check = $validator->validatePath('/path/to/json-to-validate.json', $info);
 // Showing results.

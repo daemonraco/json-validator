@@ -6,7 +6,7 @@ class SpecificationsFileStrucutreChecks extends JSONValidatorScaffold {
 			$exceptionMessage = false;
 
 			try {
-				JSONValidator::GetValidator(self::$_AssetsDirectory."/specs-no-field-{$field}.json");
+				JSONValidator::LoadFromFile(self::$_AssetsDirectory."/specs-no-field-{$field}.json");
 			} catch(\JSONValidatorException $e) {
 				$exceptionMessage = $e->getMessage();
 			}
@@ -19,7 +19,7 @@ class SpecificationsFileStrucutreChecks extends JSONValidatorScaffold {
 		$exceptionMessage = false;
 
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory.'/specs-wrong-root.json');
+			JSONValidator::LoadFromFile(self::$_AssetsDirectory.'/specs-wrong-root.json');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
@@ -31,7 +31,7 @@ class SpecificationsFileStrucutreChecks extends JSONValidatorScaffold {
 		$exceptionMessage = false;
 
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory.'/specs-wrong-types.json');
+			JSONValidator::LoadFromFile(self::$_AssetsDirectory.'/specs-wrong-types.json');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
@@ -43,7 +43,7 @@ class SpecificationsFileStrucutreChecks extends JSONValidatorScaffold {
 		$exceptionMessage = false;
 
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory.'/specs-unused-type.json');
+			JSONValidator::LoadFromFile(self::$_AssetsDirectory.'/specs-unused-type.json');
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
@@ -55,7 +55,7 @@ class SpecificationsFileStrucutreChecks extends JSONValidatorScaffold {
 		$exceptionMessage = false;
 
 		try {
-			JSONValidator::GetValidator(self::$_AssetsDirectory."/specs-undefined-type.json");
+			JSONValidator::LoadFromFile(self::$_AssetsDirectory."/specs-undefined-type.json");
 		} catch(\JSONValidatorException $e) {
 			$exceptionMessage = $e->getMessage();
 		}
