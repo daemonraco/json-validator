@@ -136,3 +136,8 @@ it's an associative list.
 If out look at the end of our example, there's a field called `root`, this will be
 the first type to check.
 Everything has to start somewhere, right? :D
+
+## Online
+If you want to try your configurations, visit our online validator at:
+
+* http://json-validator.daemonraco.com/
