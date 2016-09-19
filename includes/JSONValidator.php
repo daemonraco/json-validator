@@ -90,7 +90,7 @@ class JSONValidator {
 
 	}
 	//
-	// Public mehtods.
+	// Public methods.
 	/**
 	 * This method validates a JSON string against the loaded specification.
 	 *
@@ -102,7 +102,7 @@ class JSONValidator {
 	public function validate($jsonString, &$info = false) {
 		$ok = true;
 		//
-		// Initializing the extra information strcuture.
+		// Initializing the extra information structure.
 		$info = [
 			JV_FIELD_ERROR => false,
 			JV_FIELD_ERRORS => [],
@@ -149,14 +149,14 @@ class JSONValidator {
 			throw new JSONValidatorException(__CLASS__.": Path '{$path}' is not readable.");
 		} else {
 			//
-			// Forwaring checks.
+			// Forwarding checks.
 			$ok = $this->validate(file_get_contents($path), $info);
 		}
 
 		return $ok;
 	}
 	//
-	// Protected mehtods.
+	// Protected methods.
 	/**
 	 * This method takes a type specified as a string and transforms it into a
 	 * explained type structure.
@@ -165,13 +165,13 @@ class JSONValidator {
 	 * @param string $typeString Specification string.
 	 * @param boolean $isField When TRUE this method expands a field's type
 	 * specification, otherwise, expands a type's type specification.
-	 * @return mixed[string] Resturns a structure that reflex inportant
-	 * aspects of a type string.
+	 * @return mixed[string] Returns a structure that reflex important aspects
+	 * of a type string.
 	 * @throws \JSONValidatorException
 	 */
 	protected function expandType($typeName, $typeString, $isField = true) {
 		//
-		// Defualt values.
+		// Default values.
 		$out = [];
 		$reqMatch = false;
 		//
@@ -202,7 +202,7 @@ class JSONValidator {
 					throw new JSONValidatorException(__CLASS__.": Type '{$typeName}' is not well defined.");
 				} else {
 					//
-					// This is a regular expresion.
+					// This is a regular expression.
 					$out[JV_FIELD_TYPE] = JV_PRIMITIVE_TYPE_REGEXP;
 					$out[JV_FIELD_REGEXP] = $typeString;
 				}
@@ -219,7 +219,7 @@ class JSONValidator {
 		// Loading type modifiers on aliases.
 		$out[JV_FIELD_MODS] = isset($reqMatch['mods']) ? $reqMatch['mods'] : false;
 		//
-		// Expanding the information of knwon modifiers.
+		// Expanding the information of known modifiers.
 		switch($out[JV_FIELD_MODS]) {
 			case '[]':
 				$out[JV_FIELD_CONTAINER] = JV_CONTAINER_TYPE_ARRAY;
@@ -352,7 +352,7 @@ class JSONValidator {
 			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not a valid JSON file. [".json_last_error().'] '.json_last_error_msg());
 		}
 		//
-		// Attepting to load specs.
+		// Attempting to load specs.
 		$this->load();
 	}
 	/**
@@ -445,7 +445,7 @@ class JSONValidator {
 	 * This method validates a field's value against a regular expression.
 	 *
 	 * @param string $value Value to validate.
-	 * @param string $regexp Regular expresion string to use as pattern.
+	 * @param string $regexp Regular expression string to use as pattern.
 	 * @return boolean Returns TRUE if it matches.
 	 */
 	protected function validateRegExp($value, $regexp) {
@@ -575,7 +575,7 @@ class JSONValidator {
 	protected function validateTypeStructure($json, $path, $typeSpec, &$errors) {
 		$ok = true;
 		//
-		// Checking each known field agains the field's value.
+		// Checking each known field against the field's value.
 		foreach($typeSpec[JV_FIELD_FIELDS] as $fieldName => $fieldConf) {
 			//
 			// Checking if it's present.
@@ -590,7 +590,7 @@ class JSONValidator {
 				// failes and an error is attached.
 				if($fieldConf[JV_FIELD_REQUIRED]) {
 					$errors[] = [
-						JV_FIELD_MESSAGE => "Requiered field at '{$path}/{$fieldName}' is not present."
+						JV_FIELD_MESSAGE => "Required field at '{$path}/{$fieldName}' is not present."
 					];
 					$ok = false;
 					break;
@@ -627,7 +627,7 @@ class JSONValidator {
 	// Public class methods.
 	/**
 	 * This factory method creates a validator for each requested path. If it
-	 * was already requested it won't reload and re-analyse the specification.
+	 * was already requested it won't reload and re-analyze the specification.
 	 *
 	 * @param string $path Abosulte path from where to load an specification.
 	 * @return JSONValidator Fully loaded validator.
@@ -636,20 +636,20 @@ class JSONValidator {
 	public static function LoadFromFile($path) {
 		//
 		// Validators cache.
-		static $knwonValidators = [];
+		static $knownValidators = [];
 		//
 		// Checking if it was already loaded.
-		if(!isset($knwonValidators[$path])) {
+		if(!isset($knownValidators[$path])) {
 			//
 			// Creating a new validator.
-			$knwonValidators[$path] = new self();
+			$knownValidators[$path] = new self();
 			//
 			// Loading...
-			$knwonValidators[$path]->loadPath($path);
+			$knownValidators[$path]->loadPath($path);
 		}
 		//
-		// Returning the requeste validator.
-		return $knwonValidators[$path];
+		// Returning the requested validator.
+		return $knownValidators[$path];
 	}
 	/**
 	 * This factory method creates a validator based on a specification.
@@ -666,7 +666,7 @@ class JSONValidator {
 		// Loading...
 		$validator->loadSpec($jsonString);
 		//
-		// Returning the requeste validator.
+		// Returning the requested validator.
 		return $validator;
 	}
 }
