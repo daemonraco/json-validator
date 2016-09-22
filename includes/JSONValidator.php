@@ -87,7 +87,7 @@ class JSONValidator {
 	 * Class constructor.
 	 */
 	protected function __construct() {
-
+		
 	}
 	//
 	// Public methods.
@@ -377,6 +377,11 @@ class JSONValidator {
 		if(!in_array($containerType, self::$_ContainerTypes)) {
 			$errors[] = [
 				JV_FIELD_MESSAGE => "Field at '{$path}' is not a valid container."
+			];
+			$ok = false;
+		} elseif(!is_array($json) && !is_object($json)) {
+			$errors[] = [
+				JV_FIELD_MESSAGE => "Field at '{$path}' is not a container."
 			];
 			$ok = false;
 		} else {
