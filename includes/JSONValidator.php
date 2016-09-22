@@ -580,27 +580,36 @@ class JSONValidator {
 	protected function validateTypeStructure($json, $path, $typeSpec, &$errors) {
 		$ok = true;
 		//
-		// Checking each known field against the field's value.
-		foreach($typeSpec[JV_FIELD_FIELDS] as $fieldName => $fieldConf) {
+		// Basic check.
+		if(is_object($json)) {
 			//
-			// Checking if it's present.
-			if(isset($json->{$fieldName})) {
-				if(!$this->validateType($json->{$fieldName}, "{$path}/{$fieldName}", $fieldConf[JV_FIELD_TYPE], $errors)) {
-					$ok = false;
-					break;
-				}
-			} else {
+			// Checking each known field against the field's value.
+			foreach($typeSpec[JV_FIELD_FIELDS] as $fieldName => $fieldConf) {
 				//
-				// If it's not present and it should, this check
-				// failes and an error is attached.
-				if($fieldConf[JV_FIELD_REQUIRED]) {
-					$errors[] = [
-						JV_FIELD_MESSAGE => "Required field at '{$path}/{$fieldName}' is not present."
-					];
-					$ok = false;
-					break;
+				// Checking if it's present.
+				if(isset($json->{$fieldName})) {
+					if(!$this->validateType($json->{$fieldName}, "{$path}/{$fieldName}", $fieldConf[JV_FIELD_TYPE], $errors)) {
+						$ok = false;
+						break;
+					}
+				} else {
+					//
+					// If it's not present and it should, this check
+					// failes and an error is attached.
+					if($fieldConf[JV_FIELD_REQUIRED]) {
+						$errors[] = [
+							JV_FIELD_MESSAGE => "Required field at '{$path}/{$fieldName}' is not present."
+						];
+						$ok = false;
+						break;
+					}
 				}
 			}
+		} else {
+			$errors[] = [
+				JV_FIELD_MESSAGE => "Field at '{$path}' is not a structure."
+			];
+			$ok = false;
 		}
 
 		return $ok;
