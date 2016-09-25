@@ -1,0 +1,12 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"test": "Strucutre"
+		},
+		"Strucutre": {
+			"field": "+string",
+			"anotherfield": "int"
+		}
+	}
+}
