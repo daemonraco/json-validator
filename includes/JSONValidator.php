@@ -384,6 +384,16 @@ class JSONValidator {
 				JV_FIELD_MESSAGE => "Field at '{$path}' is not a container."
 			];
 			$ok = false;
+		} elseif($containerType == JV_CONTAINER_TYPE_OBJECT && !is_object($json)) {
+			$errors[] = [
+				JV_FIELD_MESSAGE => "Field at '{$path}' is not a container but not an object."
+			];
+			$ok = false;
+		} elseif($containerType == JV_CONTAINER_TYPE_ARRAY && !is_array($json)) {
+			$errors[] = [
+				JV_FIELD_MESSAGE => "Field at '{$path}' is not a container but not an array."
+			];
+			$ok = false;
 		} else {
 			//
 			// Checking each entry.

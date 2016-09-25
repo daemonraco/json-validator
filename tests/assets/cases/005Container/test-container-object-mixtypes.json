@@ -1,0 +1,6 @@
+{
+	"test": {
+		"field": 1,
+		"otherfield": "hello"
+	}
+}
