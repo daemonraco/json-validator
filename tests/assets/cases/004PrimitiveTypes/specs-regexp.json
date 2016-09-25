@@ -1,0 +1,9 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"test": "Pattern"
+		},
+		"Pattern": "/([ a-z]+)/"
+	}
+}
