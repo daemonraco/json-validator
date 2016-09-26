@@ -1,0 +1,17 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"test": "LimitedArray"
+		},
+		"LimitedArray": "array"
+	},
+	"policies": {
+		"LimitedArray": {
+			"max": 10,
+			"min": 1,
+			"except": ["no go"],
+			"only": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"]
+		}
+	}
+}

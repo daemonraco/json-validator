@@ -1,0 +1,17 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"test": "LimitedFloat"
+		},
+		"LimitedFloat": "float"
+	},
+	"policies": {
+		"LimitedFloat": {
+			"max": 10.0,
+			"min": 1.0,
+			"except": [6.0],
+			"only": [1.1, 2.3]
+		}
+	}
+}

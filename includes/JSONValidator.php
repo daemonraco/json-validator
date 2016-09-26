@@ -4,6 +4,9 @@
  * @file JSONValidator.php
  * @author Alejandro Dario Simi
  */
+//
+// Class aliases.
+use JV\JSONPolicies;
 
 /**
  * @class JSONValidatorException
@@ -60,6 +63,14 @@ class JSONValidator {
 	//
 	// Protected properties.
 	/**
+	 * @var mixed[string] @todo doc
+	 */
+	protected $_policies = [];
+	/**
+	 * @var \JV\JSONPolicies @todo doc
+	 */
+	protected $_policiesValidator = false;
+	/**
 	 * @var string Name of the first type to check.
 	 */
 	protected $_root = false;
@@ -87,7 +98,7 @@ class JSONValidator {
 	 * Class constructor.
 	 */
 	protected function __construct() {
-		
+		$this->_policiesValidator = JSONPolicies::Instance();
 	}
 	//
 	// Public methods.
@@ -314,6 +325,9 @@ class JSONValidator {
 		//
 		// Validating known types.
 		$this->validateUsedTypes();
+		//
+		// Loading policies.
+		$this->loadPolicies();
 	}
 	/**
 	 * This method loads specifications from a file.
@@ -334,6 +348,21 @@ class JSONValidator {
 			throw new JSONValidatorException(__CLASS__.": Path '{$this->_specsPath}' is not readable.");
 		} else {
 			$this->loadSpec(file_get_contents($this->_specsPath));
+		}
+	}
+	protected function loadPolicies() {
+		if($this->_specs->policies) {
+			foreach($this->_specs->policies as $name => $conf) {
+				if(isset($this->_types[$name])) {
+					$policy = [];
+					foreach($conf as $k => $v) {
+						$policy[$k] = $v;
+					}
+					$this->_policies[$name] = $policy;
+				} else {
+					throw new JSONValidatorException(__CLASS__.": Policy defined for an unknown type named '{$name}'");
+				}
+			}
 		}
 	}
 	/**
@@ -512,6 +541,19 @@ class JSONValidator {
 						$ok = $this->validateContainer($json, $path, $typeSpec, $errors);
 					} else {
 						$ok = $this->validateTypeAlias($json, $path, $typeSpec, $errors);
+
+						if($ok && isset($this->_policies[$typeName])) {
+							$subErrors = false;
+							foreach($this->_policies[$typeName] as $policy => $mods) {
+								if(!$this->_policiesValidator->check($json, $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE], $policy, $mods, $subErrors)) {
+									$ok = false;
+									$errors[] = [
+										JV_FIELD_MESSAGE => "Field at '{$path}' doesn't respect its policies. {$subErrors[JV_FIELD_ERROR]}"
+									];
+									break;
+								}
+							}
+						}
 					}
 					break;
 			}

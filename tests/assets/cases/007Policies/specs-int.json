@@ -1,0 +1,17 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"test": "LimitedInt"
+		},
+		"LimitedInt": "int"
+	},
+	"policies": {
+		"LimitedInt": {
+			"max": 10,
+			"min": 1,
+			"except": [6],
+			"only": [2, 3, 5]
+		}
+	}
+}
