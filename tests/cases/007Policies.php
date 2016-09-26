@@ -46,6 +46,21 @@ class Policies extends JSONValidatorScaffold {
 
 		$info = false;
 		$check = $validator->validatePath(self::$_AssetsDirectory."/test-array.json", $info);
+		$this->assertTrue($check, "Validation failed on a valid file.");
+	}
+	public function testStringPolicies() {
+		$validator = false;
+		$exceptionMessage = false;
+
+		try {
+			$validator = JSONValidator::LoadFromFile(self::$_AssetsDirectory."/specs-string.json");
+		} catch(\JSONValidatorException $e) {
+			$exceptionMessage = $e->getMessage();
+		}
+		$this->assertFalse(boolval($exceptionMessage), "Specification cannot be loaded. {$exceptionMessage}");
+
+		$info = false;
+		$check = $validator->validatePath(self::$_AssetsDirectory."/test-string.json", $info);
 //DEBUG
 		if(!$check) {
 			debugit($info);

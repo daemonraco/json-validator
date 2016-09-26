@@ -4,6 +4,6 @@
 		"Root": {
 			"test": "Pattern"
 		},
-		"Pattern": "/([ a-z]+)/"
+		"Pattern": "/^([ a-z]+)$/"
 	}
 }

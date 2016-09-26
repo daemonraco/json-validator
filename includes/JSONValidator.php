@@ -351,7 +351,7 @@ class JSONValidator {
 		}
 	}
 	protected function loadPolicies() {
-		if($this->_specs->policies) {
+		if(isset($this->_specs->policies)) {
 			foreach($this->_specs->policies as $name => $conf) {
 				if(isset($this->_types[$name])) {
 					$policy = [];

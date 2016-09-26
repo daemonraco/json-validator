@@ -1,0 +1,17 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"test": "LimitedString"
+		},
+		"LimitedString": "string"
+	},
+	"policies": {
+		"LimitedString": {
+			"max": 10,
+			"min": 1,
+			"except": ["no go"],
+			"only": ["yes", "no"]
+		}
+	}
+}

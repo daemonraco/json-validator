@@ -134,6 +134,22 @@ class JSONPolicies {
 		$message = "Value '{$value}' is not allowed.";
 		return in_array($value, $mods);
 	}
+	protected function checkStringExcept($value, $mods, &$message) {
+		$message = "Value '{$value}' is not allowed.";
+		return !in_array($value, $mods);
+	}
+	protected function checkStringMax($value, $mods, &$message) {
+		$message = "Value is longer than '{$mods}'.";
+		return strlen($value) <= $mods;
+	}
+	protected function checkStringMin($value, $mods, &$message) {
+		$message = "Value is shorter than '{$mods}'.";
+		return strlen($value) >= $mods;
+	}
+	protected function checkStringOnly($value, $mods, &$message) {
+		$message = "Value '{$value}' is not allowed.";
+		return in_array($value, $mods);
+	}
 	//
 	// Public class methods.
 	/**
