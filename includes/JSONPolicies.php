@@ -150,6 +150,17 @@ class JSONPolicies {
 		$message = "Value '{$value}' is not allowed.";
 		return in_array($value, $mods);
 	}
+	protected function checkStructureStrict($value, $mods, &$message) {
+		$ok = true;
+
+		if($mods[JV_FIELD_MODS]) {
+			$unknownKeys = array_diff(array_keys(get_object_vars($value)), array_keys($mods[JV_FIELD_FIELDS]));
+			$ok = empty($unknownKeys);
+			$message = "Unknown fields: '".implode("', '", $unknownKeys)."'.";
+		}
+
+		return $ok;
+	}
 	//
 	// Public class methods.
 	/**

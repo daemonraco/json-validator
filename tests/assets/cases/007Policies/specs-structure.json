@@ -1,0 +1,14 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"required": "+int",
+			"optional": "int"
+		}
+	},
+	"policies": {
+		"Root": {
+			"strict": true
+		}
+	}
+}

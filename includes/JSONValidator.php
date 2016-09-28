@@ -415,12 +415,12 @@ class JSONValidator {
 			$ok = false;
 		} elseif($containerType == JV_CONTAINER_TYPE_OBJECT && !is_object($json)) {
 			$errors[] = [
-				JV_FIELD_MESSAGE => "Field at '{$path}' is not a container but not an object."
+				JV_FIELD_MESSAGE => "Field at '{$path}' is a container but not an object."
 			];
 			$ok = false;
 		} elseif($containerType == JV_CONTAINER_TYPE_ARRAY && !is_array($json)) {
 			$errors[] = [
-				JV_FIELD_MESSAGE => "Field at '{$path}' is not a container but not an array."
+				JV_FIELD_MESSAGE => "Field at '{$path}' is a container but not an array."
 			];
 			$ok = false;
 		} else {
@@ -522,6 +522,25 @@ class JSONValidator {
 			switch($typeSpec[JV_FIELD_STYPE]) {
 				case JV_STYPE_STRUCTURE:
 					$ok = $this->validateTypeStructure($json, $path, $typeSpec, $errors);
+					//
+					// Checking policies.
+					if($ok && isset($this->_policies[$typeName])) {
+						$subErrors = false;
+						$enrichedMods = [
+							JV_FIELD_FIELDS => $typeSpec[JV_FIELD_FIELDS],
+							JV_FIELD_MODS => false
+						];
+						foreach($this->_policies[$typeName] as $policy => $mods) {
+							$enrichedMods[JV_FIELD_MODS] = $mods;
+							if(!$this->_policiesValidator->check($json, JV_STYPE_STRUCTURE, $policy, $enrichedMods, $subErrors)) {
+								$ok = false;
+								$errors[] = [
+									JV_FIELD_MESSAGE => "Field at '{$path}' doesn't respect its policies. {$subErrors[JV_FIELD_ERROR]}"
+								];
+								break;
+							}
+						}
+					}
 					break;
 				case JV_STYPE_TYPES_LIST:
 					$ok = $this->validateTypeList($json, $path, $typeSpec, $errors);
@@ -538,10 +557,13 @@ class JSONValidator {
 					//
 					// Checking if this alias is a container.
 					if($typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]) {
+//JV_CONTAINER_TYPE_OBJECT
+//JV_CONTAINER_TYPE_ARRAY
 						$ok = $this->validateContainer($json, $path, $typeSpec, $errors);
 					} else {
 						$ok = $this->validateTypeAlias($json, $path, $typeSpec, $errors);
-
+						//
+						// Checking policies.
 						if($ok && isset($this->_policies[$typeName])) {
 							$subErrors = false;
 							foreach($this->_policies[$typeName] as $policy => $mods) {
