@@ -24,7 +24,7 @@ class Container extends JSONValidatorScaffold {
 		$info = false;
 		$check = $validator->validatePath(self::$_AssetsDirectory."/test-container-array-notarray.json", $info);
 		$this->assertFalse($check, "Validation succeeded on a non-array when it shouldn't.");
-		$this->assertRegExp("~Field at '//test' is not a container but not an array\.~", $info[JV_FIELD_ERROR][JV_FIELD_MESSAGE], "Extra information does not mention the error.");
+		$this->assertRegExp("~Field at '//test' is a container but not an array\.~", $info[JV_FIELD_ERROR][JV_FIELD_MESSAGE], "Extra information does not mention the error.");
 
 		$info = false;
 		$check = $validator->validatePath(self::$_AssetsDirectory."/test-container-array-wrongtype.json", $info);
@@ -54,7 +54,7 @@ class Container extends JSONValidatorScaffold {
 		$info = false;
 		$check = $validator->validatePath(self::$_AssetsDirectory."/test-container-object-notobject.json", $info);
 		$this->assertFalse($check, "Validation succeeded on a non-object when it shouldn't.");
-		$this->assertRegExp("~Field at '//test' is not a container but not an object\.~", $info[JV_FIELD_ERROR][JV_FIELD_MESSAGE], "Extra information does not mention the error.");
+		$this->assertRegExp("~Field at '//test' is a container but not an object\.~", $info[JV_FIELD_ERROR][JV_FIELD_MESSAGE], "Extra information does not mention the error.");
 
 		$info = false;
 		$check = $validator->validatePath(self::$_AssetsDirectory."/test-container-object-wrongtype.json", $info);
