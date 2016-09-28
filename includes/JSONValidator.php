@@ -350,9 +350,20 @@ class JSONValidator {
 			$this->loadSpec(file_get_contents($this->_specsPath));
 		}
 	}
+	/**
+	 * @todo doc
+	 *
+	 * @throws \JSONValidatorException
+	 */
 	protected function loadPolicies() {
+		//
+		// Checking if there are policies.
 		if(isset($this->_specs->policies)) {
+			//
+			// Loading each policy set.
 			foreach($this->_specs->policies as $name => $conf) {
+				//
+				// Checking if the affected type exists.
 				if(isset($this->_types[$name])) {
 					$policy = [];
 					foreach($conf as $k => $v) {
@@ -361,6 +372,41 @@ class JSONValidator {
 					$this->_policies[$name] = $policy;
 				} else {
 					throw new JSONValidatorException(__CLASS__.": Policy defined for an unknown type named '{$name}'");
+				}
+			}
+			//
+			// Searching for unknown policies.
+			$knownPolicies = $this->_policiesValidator->knwonPolicies();
+			foreach($this->_policies as $name => $policies) {
+				$typeSpec = $this->_types[$name];
+
+				$policyType = false;
+				switch($typeSpec[JV_FIELD_STYPE]) {
+					case JV_STYPE_ALIAS:
+						if($typeSpec[JV_FIELD_TYPE][JV_FIELD_PRIMITIVE]) {
+							$policyType = $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE];
+						} else {
+							throw new JSONValidatorException(__CLASS__.": Alias policies can only applied when it points to a primitive type (type: '{$name}').");
+						}
+						break;
+					case JV_STYPE_TYPES_LIST:
+						break;
+					case JV_STYPE_REGEXP:
+//						$policyType = JV_PRIMITIVE_TYPE_STRING;
+						break;
+					case JV_STYPE_STRUCTURE:
+						$policyType = JV_STYPE_STRUCTURE;
+						break;
+					default:
+						throw new JSONValidatorException(__CLASS__.": There are no known policies for a '{$typeSpec[JV_FIELD_STYPE]}' type specification (type: '{$name}').");
+				}
+
+				if($policyType) {
+					foreach($policies as $policy => $mods) {
+						if(!isset($knownPolicies[$policyType]) || !in_array($policy, $knownPolicies[$policyType])) {
+							throw new JSONValidatorException(__CLASS__.": Uknwon policy '{$policy}' for type '{$policyType}' (type: '{$name}').");
+						}
+					}
 				}
 			}
 		}

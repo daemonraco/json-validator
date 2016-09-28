@@ -25,6 +25,13 @@ class JSONPolicyException extends JSONValidatorException {
 class JSONPolicies {
 	//
 	// Protected properties.
+	protected $_knwonPolicies = [
+		JV_PRIMITIVE_TYPE_ARRAY => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
+		JV_PRIMITIVE_TYPE_FLOAT => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
+		JV_PRIMITIVE_TYPE_INT => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
+		JV_PRIMITIVE_TYPE_STRING => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
+		JV_STYPE_STRUCTURE => [JV_POLICY_STRICT]
+	];
 	//
 	// Magic methods.
 	/**
@@ -65,6 +72,9 @@ class JSONPolicies {
 		}
 
 		return $ok;
+	}
+	public function knwonPolicies() {
+		return $this->_knwonPolicies;
 	}
 	//
 	// Protected methods.

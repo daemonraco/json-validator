@@ -47,6 +47,14 @@ define('JV_STYPE_REGEXP', 'regexp');
 define('JV_STYPE_STRUCTURE', 'structure');
 //@}
 //
+// Policies constants @{
+define('JV_POLICY_EXCEPT', 'except');
+define('JV_POLICY_MAX', 'max');
+define('JV_POLICY_MIN', 'min');
+define('JV_POLICY_ONLY', 'only');
+define('JV_POLICY_STRICT', 'strict');
+//@}
+//
 // Other constants @{
 define('JV_TYPES_SEPARATOR', ',');
 define('JV_SUBTYPES_SEPARATOR', ':');
