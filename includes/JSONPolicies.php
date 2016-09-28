@@ -30,7 +30,8 @@ class JSONPolicies {
 		JV_PRIMITIVE_TYPE_FLOAT => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
 		JV_PRIMITIVE_TYPE_INT => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
 		JV_PRIMITIVE_TYPE_STRING => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
-		JV_STYPE_STRUCTURE => [JV_POLICY_STRICT]
+		JV_STYPE_STRUCTURE => [JV_POLICY_STRICT],
+		JV_PTYPE_CONTAINER_ARRAY => [JV_POLICY_MAX, JV_POLICY_MIN]
 	];
 	//
 	// Magic methods.
@@ -59,7 +60,7 @@ class JSONPolicies {
 		];
 		$ok = true;
 
-		$policyFunc = str_replace(' ', '', "check".ucwords("{$type} {$policy}"));
+		$policyFunc = str_replace(' ', '', "check".ucwords(preg_replace('/[-_]/', ' ', "{$type} {$policy}")));
 		if(method_exists($this, $policyFunc)) {
 			if(!$this->{$policyFunc}($value, $mods, $message)) {
 				$info = [
@@ -111,6 +112,14 @@ class JSONPolicies {
 		}
 
 		return $ok;
+	}
+	protected function checkContinerArrayMax($value, $mods, &$message) {
+		$message = "The number of elements is greater than '{$mods}'.";
+		return count($value) <= $mods;
+	}
+	protected function checkContinerArrayMin($value, $mods, &$message) {
+		$message = "The number of elements is lower than '{$mods}'.";
+		return count($value) >= $mods;
 	}
 	protected function checkFloatExcept($value, $mods, &$message) {
 		$message = "Value '{$value}' is not allowed.";

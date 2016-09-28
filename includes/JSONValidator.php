@@ -31,6 +31,13 @@ class JSONValidator {
 		JV_CONTAINER_TYPE_OBJECT
 	];
 	/**
+	 * @var string[string] @todo doc
+	 */
+	protected static $_PolicyTypeTranslations = [
+		JV_CONTAINER_TYPE_ARRAY => JV_PTYPE_CONTAINER_ARRAY,
+		JV_CONTAINER_TYPE_OBJECT => JV_PTYPE_CONTAINER_OBJECT
+	];
+	/**
 	 * @var string[] List of all types known as primitive, these don't
 	 * require complex checks.
 	 */
@@ -383,20 +390,21 @@ class JSONValidator {
 				$policyType = false;
 				switch($typeSpec[JV_FIELD_STYPE]) {
 					case JV_STYPE_ALIAS:
-						if($typeSpec[JV_FIELD_TYPE][JV_FIELD_PRIMITIVE]) {
-							$policyType = $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE];
+						if($typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]) {
+							$policyType = self::$_PolicyTypeTranslations[$typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]];
 						} else {
-							throw new JSONValidatorException(__CLASS__.": Alias policies can only applied when it points to a primitive type (type: '{$name}').");
+							if($typeSpec[JV_FIELD_TYPE][JV_FIELD_PRIMITIVE]) {
+								$policyType = $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE];
+							} else {
+								throw new JSONValidatorException(__CLASS__.": Alias policies can only applied when it points to a primitive type (type: '{$name}').");
+							}
 						}
-						break;
-					case JV_STYPE_TYPES_LIST:
-						break;
-					case JV_STYPE_REGEXP:
-//						$policyType = JV_PRIMITIVE_TYPE_STRING;
 						break;
 					case JV_STYPE_STRUCTURE:
 						$policyType = JV_STYPE_STRUCTURE;
 						break;
+					case JV_STYPE_TYPES_LIST:
+					case JV_STYPE_REGEXP:
 					default:
 						throw new JSONValidatorException(__CLASS__.": There are no known policies for a '{$typeSpec[JV_FIELD_STYPE]}' type specification (type: '{$name}').");
 				}
@@ -600,26 +608,27 @@ class JSONValidator {
 					}
 					break;
 				case JV_STYPE_ALIAS:
+					$policyType = false;
 					//
 					// Checking if this alias is a container.
 					if($typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]) {
-//JV_CONTAINER_TYPE_OBJECT
-//JV_CONTAINER_TYPE_ARRAY
+						$policyType = self::$_PolicyTypeTranslations[$typeSpec[JV_FIELD_TYPE][JV_FIELD_CONTAINER]];
 						$ok = $this->validateContainer($json, $path, $typeSpec, $errors);
 					} else {
+						$policyType = $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE];
 						$ok = $this->validateTypeAlias($json, $path, $typeSpec, $errors);
-						//
-						// Checking policies.
-						if($ok && isset($this->_policies[$typeName])) {
-							$subErrors = false;
-							foreach($this->_policies[$typeName] as $policy => $mods) {
-								if(!$this->_policiesValidator->check($json, $typeSpec[JV_FIELD_TYPE][JV_FIELD_TYPE], $policy, $mods, $subErrors)) {
-									$ok = false;
-									$errors[] = [
-										JV_FIELD_MESSAGE => "Field at '{$path}' doesn't respect its policies. {$subErrors[JV_FIELD_ERROR]}"
-									];
-									break;
-								}
+					}
+					//
+					// Checking policies.
+					if($ok && isset($this->_policies[$typeName])) {
+						$subErrors = false;
+						foreach($this->_policies[$typeName] as $policy => $mods) {
+							if(!$this->_policiesValidator->check($json, $policyType, $policy, $mods, $subErrors)) {
+								$ok = false;
+								$errors[] = [
+									JV_FIELD_MESSAGE => "Field at '{$path}' doesn't respect its policies. {$subErrors[JV_FIELD_ERROR]}"
+								];
+								break;
 							}
 						}
 					}

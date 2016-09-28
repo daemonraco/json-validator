@@ -53,6 +53,9 @@ define('JV_POLICY_MAX', 'max');
 define('JV_POLICY_MIN', 'min');
 define('JV_POLICY_ONLY', 'only');
 define('JV_POLICY_STRICT', 'strict');
+
+define('JV_PTYPE_CONTAINER_ARRAY', 'continer-array');
+define('JV_PTYPE_CONTAINER_OBJECT', 'continer-object');
 //@}
 //
 // Other constants @{

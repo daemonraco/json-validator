@@ -1,0 +1,15 @@
+{
+	"root": "Root",
+	"types": {
+		"Root": {
+			"test": "LimitedContainer"
+		},
+		"LimitedContainer": "int[]"
+	},
+	"policies": {
+		"LimitedContainer": {
+			"max": 10,
+			"min": 1
+		}
+	}
+}
