@@ -581,7 +581,7 @@ class JSONValidator {
 					if($ok && isset($this->_policies[$typeName])) {
 						$subErrors = false;
 						$enrichedMods = [
-							JV_FIELD_FIELDS => $typeSpec[JV_FIELD_FIELDS],
+							JV_FIELD_FIELDS => array_keys($typeSpec[JV_FIELD_FIELDS]),
 							JV_FIELD_MODS => false
 						];
 						foreach($this->_policies[$typeName] as $policy => $mods) {

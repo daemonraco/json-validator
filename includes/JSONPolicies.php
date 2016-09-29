@@ -326,7 +326,7 @@ class JSONPolicies {
 		$ok = true;
 
 		if($mods[JV_FIELD_MODS]) {
-			$unknownKeys = array_diff(array_keys(get_object_vars($value)), array_keys($mods[JV_FIELD_FIELDS]));
+			$unknownKeys = array_diff(array_keys(get_object_vars($value)), $mods[JV_FIELD_FIELDS]);
 			$ok = empty($unknownKeys);
 			$message = "Unknown fields: '".implode("', '", $unknownKeys)."'.";
 		}
