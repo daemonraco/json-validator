@@ -1,7 +1,5 @@
 <?php
 
-use JV\JSONPolicies;
-
 class Policies extends JSONValidatorScaffold {
 	public function testIntPolicies() {
 		$validator = false;
@@ -91,20 +89,6 @@ class Policies extends JSONValidatorScaffold {
 
 		$info = false;
 		$check = $validator->validatePath(self::$_AssetsDirectory."/test-container-array.json", $info);
-//DEBUG
-		if(!$check) {
-			debugit($info);
-		}
-//DEBUG
 		$this->assertTrue($check, "Validation failed on a valid file.");
 	}
-//	public function testBasic() {
-//		$checker = JSONPolicies::Instance();
-//
-//		$result = $checker->check(10, JV_PRIMITIVE_TYPE_INT, 'max', [10], $info);
-//		debugit([
-//			'$result' => $result,
-//			'$info' => $info
-//		]);
-//	}
 }
