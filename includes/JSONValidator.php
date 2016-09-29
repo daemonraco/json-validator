@@ -383,7 +383,7 @@ class JSONValidator {
 			}
 			//
 			// Searching for unknown policies.
-			$knownPolicies = $this->_policiesValidator->knwonPolicies();
+			$knownPolicies = JSONPolicies::KnownPolicies();
 			foreach($this->_policies as $name => $policies) {
 				$typeSpec = $this->_types[$name];
 

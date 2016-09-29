@@ -24,8 +24,11 @@ class JSONPolicyException extends JSONValidatorException {
  */
 class JSONPolicies {
 	//
-	// Protected properties.
-	protected $_knwonPolicies = [
+	// Protected class properties.
+	/**
+	 * @var mixed[string] @todo doc
+	 */
+	protected static $_KnownPolicies = [
 		JV_PRIMITIVE_TYPE_ARRAY => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
 		JV_PRIMITIVE_TYPE_FLOAT => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
 		JV_PRIMITIVE_TYPE_INT => [JV_POLICY_EXCEPT, JV_POLICY_MAX, JV_POLICY_MIN, JV_POLICY_ONLY],
@@ -73,9 +76,6 @@ class JSONPolicies {
 		}
 
 		return $ok;
-	}
-	public function knwonPolicies() {
-		return $this->_knwonPolicies;
 	}
 	//
 	// Protected methods.
@@ -195,5 +195,8 @@ class JSONPolicies {
 		}
 
 		return $instance;
+	}
+	public static function KnownPolicies() {
+		return self::$_KnownPolicies;
 	}
 }
