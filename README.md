@@ -14,7 +14,7 @@ Here is an example of how to validate a JSON file stored at
 <?php
 // Loading the library.
 require_once '/path/to/library/json-validator.php';
-// Ferching a validator.
+// Fetching a validator.
 $validator = JSONValidator::LoadFromFile('/path/to/json-specification.json');
 // Validating...
 $check = $validator->validatePath('/path/to/json-to-validate.json', $info);
@@ -136,6 +136,10 @@ it's an associative list.
 If out look at the end of our example, there's a field called `root`, this will be
 the first type to check.
 Everything has to start somewhere, right? :D
+
+## Policies
+If you need to apply policies to your types, follow [this link](docs/policies.md)
+to obtain more information.
 
 ## Online
 If you want to try your configurations, visit our online validator at:

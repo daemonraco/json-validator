@@ -59,13 +59,20 @@ class JSONPolicies {
 	 * @throws \JV\JSONPolicyException
 	 */
 	public function check($value, $type, $policy, $mods = false, &$info = false) {
+		//
+		// Default values.
 		$info = [
 			JV_FIELD_ERROR => false
 		];
 		$ok = true;
-
+		//
+		// Guessing the right policy checker method.
 		$policyFunc = str_replace(' ', '', "check".ucwords(preg_replace('/[-_]/', ' ', "{$type} {$policy}")));
+		//
+		// Checking if it's possibly to validate the policy.
 		if(method_exists($this, $policyFunc)) {
+			//
+			// Checking if it applies.
 			if(!$this->{$policyFunc}($value, $mods, $message)) {
 				$info = [
 					JV_FIELD_ERROR => $message
