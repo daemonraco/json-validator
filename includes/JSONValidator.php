@@ -31,7 +31,8 @@ class JSONValidator {
 		JV_CONTAINER_TYPE_OBJECT
 	];
 	/**
-	 * @var string[string] @todo doc
+	 * @var string[string] This constant translates container types to policy
+	 * container types (avoiding 'switch').
 	 */
 	protected static $_PolicyTypeTranslations = [
 		JV_CONTAINER_TYPE_ARRAY => JV_PTYPE_CONTAINER_ARRAY,
@@ -70,11 +71,11 @@ class JSONValidator {
 	//
 	// Protected properties.
 	/**
-	 * @var mixed[string] @todo doc
+	 * @var mixed[string] List of loaded policies.
 	 */
 	protected $_policies = [];
 	/**
-	 * @var \JV\JSONPolicies @todo doc
+	 * @var \JV\JSONPolicies Policies validator shortcut.
 	 */
 	protected $_policiesValidator = false;
 	/**
@@ -358,7 +359,8 @@ class JSONValidator {
 		}
 	}
 	/**
-	 * @todo doc
+	 * This method loads policies defined in the specifications file and
+	 * validates them before using it.
 	 *
 	 * @throws \JSONValidatorException
 	 */
@@ -385,8 +387,11 @@ class JSONValidator {
 			// Searching for unknown policies.
 			$knownPolicies = JSONPolicies::KnownPolicies();
 			foreach($this->_policies as $name => $policies) {
+				//
+				// Type specifications shortcut.
 				$typeSpec = $this->_types[$name];
-
+				//
+				// Guessing the right policy type.
 				$policyType = false;
 				switch($typeSpec[JV_FIELD_STYPE]) {
 					case JV_STYPE_ALIAS:
@@ -408,12 +413,11 @@ class JSONValidator {
 					default:
 						throw new JSONValidatorException(__CLASS__.": There are no known policies for a '{$typeSpec[JV_FIELD_STYPE]}' type specification (type: '{$name}').");
 				}
-
-				if($policyType) {
-					foreach($policies as $policy => $mods) {
-						if(!isset($knownPolicies[$policyType]) || !in_array($policy, $knownPolicies[$policyType])) {
-							throw new JSONValidatorException(__CLASS__.": Uknwon policy '{$policy}' for type '{$policyType}' (type: '{$name}').");
-						}
+				//
+				// Checking if it's an unknown policy type.
+				foreach($policies as $policy => $mods) {
+					if(!isset($knownPolicies[$policyType]) || !in_array($policy, $knownPolicies[$policyType])) {
+						throw new JSONValidatorException(__CLASS__.": Uknwon policy '{$policy}' for type '{$policyType}' (type: '{$name}').");
 					}
 				}
 			}
