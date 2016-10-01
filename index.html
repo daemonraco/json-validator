@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Json-validator by daemonraco</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Json-validator</h1>
+        <h2>This is a small PHP library useful to validate JSON structures.</h2>
+        <a href="https://github.com/daemonraco/json-validator" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="json-validator" class="anchor" href="#json-validator" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>JSON Validator</h1>
+
+<p><a href="https://travis-ci.org/daemonraco/json-validator"><img src="https://travis-ci.org/daemonraco/json-validator.svg?branch=master" alt="Build Status"></a></p>
+
+<h2>
+<a id="what-is-it" class="anchor" href="#what-is-it" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is it?</h2>
+
+<p>This is a small PHP library useful to validate JSON structures.
+This is similar to <a href="https://en.wikipedia.org/wiki/Document_type_definition">DTD</a>
+files for XML.</p>
+
+<h2>
+<a id="how-to-use-it" class="anchor" href="#how-to-use-it" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use it</h2>
+
+<p>Here is an example of how to validate a JSON file stored at
+<code>/path/to/json-to-validate.json</code>:</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// Loading the library.</span></span>
+<span class="pl-s1"><span class="pl-k">require_once</span> <span class="pl-s"><span class="pl-pds">'</span>/path/to/library/json-validator.php<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-c">// Fetching a validator.</span></span>
+<span class="pl-s1"><span class="pl-smi">$validator</span> <span class="pl-k">=</span> <span class="pl-c1">JSONValidator</span><span class="pl-k">::</span>LoadFromFile(<span class="pl-s"><span class="pl-pds">'</span>/path/to/json-specification.json<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-c">// Validating...</span></span>
+<span class="pl-s1"><span class="pl-smi">$check</span> <span class="pl-k">=</span> <span class="pl-smi">$validator</span><span class="pl-k">-&gt;</span>validatePath(<span class="pl-s"><span class="pl-pds">'</span>/path/to/json-to-validate.json<span class="pl-pds">'</span></span>, <span class="pl-smi">$info</span>);</span>
+<span class="pl-s1"><span class="pl-c">// Showing results.</span></span>
+<span class="pl-s1"><span class="pl-c1">var_dump</span>(<span class="pl-smi">$check</span>, <span class="pl-smi">$info</span>);</span></pre></div>
+
+<p>You're probably wondering about <code>/path/to/json-specification.json</code> and what's
+inside it, well, we'll talk about it in the next section.</p>
+
+<h2>
+<a id="how-to-specify-rules" class="anchor" href="#how-to-specify-rules" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to specify rules</h2>
+
+<p>Let's say you have a JSON file like this one:</p>
+
+<div class="highlight highlight-source-json"><pre>[
+    {
+        <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Flour<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Useful to make bread<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>price<span class="pl-pds">"</span></span>: <span class="pl-c1">1.2</span>,
+        <span class="pl-s"><span class="pl-pds">"</span>type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>comestible<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>status<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>available<span class="pl-pds">"</span></span>
+    }, {
+        <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Egg<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>price<span class="pl-pds">"</span></span>: <span class="pl-c1">0.73</span>,
+        <span class="pl-s"><span class="pl-pds">"</span>type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>comestible<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>status<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>soldout<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>notes<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>we've run out of these last week<span class="pl-pds">"</span></span>
+    }
+]</pre></div>
+
+<p>If you want to make sure the it has the right structure you may specify a
+structure like this one:</p>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>types<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>Products<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Product[]<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>Product<span class="pl-pds">"</span></span>: {
+            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>+string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Description<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>price<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>+float<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>+string<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>status<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>ProductStatus<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>notes<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Notes<span class="pl-pds">"</span></span>
+        },
+        <span class="pl-s"><span class="pl-pds">"</span>ProductStatus<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>/^(available|soldout)$/<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>Notes<span class="pl-pds">"</span></span>: [<span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>object<span class="pl-pds">"</span></span>],
+        <span class="pl-s"><span class="pl-pds">"</span>Description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>
+    },
+    <span class="pl-s"><span class="pl-pds">"</span>root<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>+Products<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<p>yes, I know, it's confusing, let's explain it.</p>
+
+<h3>
+<a id="types-of-types" class="anchor" href="#types-of-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Types of types</h3>
+
+<p>In you specification, the field <code>types</code> contains the list of all non primitive
+types.
+Each entry is a type name associated with it's actual definition that can be one
+these types:</p>
+
+<ul>
+<li><em>Alias</em></li>
+<li><em>List of types</em></li>
+<li><em>Structure</em></li>
+<li><em>Regular expression</em></li>
+</ul>
+
+<h4>
+<a id="alias" class="anchor" href="#alias" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Alias</h4>
+
+<p>An alias time is just a redefinition of another type, or even expansion of another
+type to convert it into a list of it.
+I our example, <code>Products</code> is not only defined as an alias of <code>Product</code>, but a list
+of entries that must follow the specification for <code>Product</code>.</p>
+
+<p><code>Description</code> is also an alias.</p>
+
+<h4>
+<a id="list-of-types" class="anchor" href="#list-of-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>List of types</h4>
+
+<p>In our example, the type <code>Notes</code> is one of these.
+Basically it tell us that any field of type <code>Notes</code> may be a <code>string</code> or an
+<code>object</code>, but no other.</p>
+
+<h4>
+<a id="structure" class="anchor" href="#structure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Structure</h4>
+
+<p>This is perhaps the complex one.
+In it, each entry is a name of a field to look for associated with the type it
+must follow.
+In our example, <code>Product</code> is of this kind and it specifies six field, four of
+primitive types and two of types we listed in our configuration.</p>
+
+<p>Here, if you look closely, at least three fields have a plus sign (<code>+</code>) before its
+type name, that flag indicates that it's a required field meaning the validation
+will fail if not present.</p>
+
+<h4>
+<a id="regular-expression" class="anchor" href="#regular-expression" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Regular expression</h4>
+
+<p>The magical way is to specify a type as a <a href="https://en.wikipedia.org/wiki/Regular_expression"><em>regular
+expression</em></a>.
+As you probably guest already, it will take a field and validate it against the
+expression.</p>
+
+<p>In our example, this means that product status can either be <code>available</code> or
+<code>soldout</code>.</p>
+
+<h3>
+<a id="primitive-types" class="anchor" href="#primitive-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Primitive types</h3>
+
+<p>By default, this library supports a set of type call primitives that perform
+simple validations.
+These types are:</p>
+
+<ul>
+<li>
+<code>array</code>: List of items that can be of any type.</li>
+<li>
+<code>boolean</code>: Either <code>true</code> or <code>false</code>.</li>
+<li>
+<code>float</code>: Floating point number.</li>
+<li>
+<code>int</code>: An integer.</li>
+<li>
+<code>mixed</code>: Any type.</li>
+<li>
+<code>object</code>: Structured type.</li>
+<li>
+<code>string</code>: A simple string.</li>
+</ul>
+
+<h3>
+<a id="containers" class="anchor" href="#containers" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Containers</h3>
+
+<p>Previously we mention the type <code>Products</code> and that it's an alias representing a
+list of products, <em>but how?</em></p>
+
+<p>When we specify a type as an alias we may use <code>[]</code> or <code>{}</code> at the end of the
+type's name to indicate that it's a container of.
+When using <code>[]</code> we are saying that it's a simple list of items and <code>{}</code> means that
+it's an associative list.</p>
+
+<h3>
+<a id="root-type" class="anchor" href="#root-type" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Root type</h3>
+
+<p>If out look at the end of our example, there's a field called <code>root</code>, this will be
+the first type to check.
+Everything has to start somewhere, right? :D</p>
+
+<h2>
+<a id="policies" class="anchor" href="#policies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Policies</h2>
+
+<p>If you need to apply policies to your types, follow <a href="docs/policies.md">this link</a>
+to obtain more information.</p>
+
+<h2>
+<a id="online" class="anchor" href="#online" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Online</h2>
+
+<p>If you want to try your configurations, visit our online validator at:</p>
+
+<ul>
+<li><a href="http://json-validator.daemonraco.com/">http://json-validator.daemonraco.com/</a></li>
+</ul>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/daemonraco/json-validator/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/daemonraco/json-validator/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/daemonraco/json-validator"></a> is maintained by <a href="https://github.com/daemonraco">daemonraco</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
