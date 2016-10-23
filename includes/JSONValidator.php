@@ -551,7 +551,7 @@ class JSONValidator {
 	 * @return boolean Returns TRUE if it matches.
 	 */
 	protected function validateRegExp($value, $regexp) {
-		return preg_match($regexp, $value);
+		return @preg_match($regexp, $value);
 	}
 	/**
 	 * This is the main method to validate a field value against a type.
