@@ -18,7 +18,7 @@ notifications:
 #
 # Pre-installation steps.
 before_install:
-  - composer require phpunit/phpunit:4.8.24
+  - composer require phpunit/phpunit:5.7.13
 
 script:
   - ./vendor/phpunit/phpunit/phpunit --configuration phpunit.xml
