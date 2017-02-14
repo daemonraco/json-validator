@@ -12,7 +12,7 @@ spl_autoload_register(function($class) {
 	// Known classes.
 	static $knownClasses = [
 		'JSONValidator' => '/includes/JSONValidator.php',
-		'JSONValidatorException' => '/includes/JSONValidator.php',
+		'JSONValidatorException' => '/includes/JSONValidatorException.php',
 		'JV\JSONPolicies' => '/includes/JSONPolicies.php',
 		'JV\JSONPolicyException' => '/includes/JSONPolicies.php'
 	];

@@ -7,17 +7,6 @@
 
 namespace JV;
 
-//
-// Class aliases.
-use JSONValidatorException;
-
-/**
- * @class JSONPolicyException
- */
-class JSONPolicyException extends JSONValidatorException {
-	
-}
-
 /**
  * @class JSONPolicies
  * This class holds the logic to check field policies, for examples length limits,

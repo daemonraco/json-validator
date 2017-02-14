@@ -9,13 +9,6 @@
 use JV\JSONPolicies;
 
 /**
- * @class JSONValidatorException
- */
-class JSONValidatorException extends Exception {
-	
-}
-
-/**
  * @class JSONValidator
  * This class holds all the logic to validate a JSON string based on a
  * specification.
